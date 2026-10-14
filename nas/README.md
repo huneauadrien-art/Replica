@@ -40,8 +40,11 @@ Ensuite chaque saisie part au NAS dans les secondes qui suivent, ou au retour du
 
 ## Mettre à jour
 
-Dans **Docker** › **Projet** › `registre-vigne` : arrêter, puis reconstruire ou
-« mettre à jour l'image ». Les données du dossier `donnees` sont conservées.
+Dans **Docker** › **Projet** › `registre-vigne` : **Arrêter**, puis **Démarrer**.
+Grâce à `pull_policy: always`, le NAS télécharge la dernière version à chaque démarrage.
+Si ce n'est pas le cas : projet arrêté, supprimez l'image `ghcr.io/huneauadrien-art/registre-vigne`
+dans **Docker** › **Image**, puis redémarrez le projet. Les données du dossier `donnees`
+sont conservées.
 
 ## Si le téléchargement de l'image est refusé
 

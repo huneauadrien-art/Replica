@@ -3,6 +3,8 @@ services:
   registre-vigne:
     image: ghcr.io/huneauadrien-art/registre-vigne:latest
     container_name: registre-vigne
+    # Télécharge la dernière version à chaque démarrage du projet.
+    pull_policy: always
     restart: unless-stopped
     ports:
       - "8080:8080"
