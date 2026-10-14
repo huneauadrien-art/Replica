@@ -1,6 +1,7 @@
 import { router } from 'expo-router';
 import { useState } from 'react';
 import { View } from 'react-native';
+import { cultureDe, largeurTraitee } from '../../core/cultures';
 import { fmt } from '../../core/registre';
 import { useStore } from '../../data/store';
 import { ApercuParcelle } from '../../ui/ApercuParcelle';
@@ -9,8 +10,11 @@ import { Badge, Bouton, Carte, Ecran, Ligne, Puce, Texte, Vide } from '../../ui/
 export default function Parcelles() {
   const { donnees: d } = useStore();
   const [archivees, setArchivees] = useState(false);
-  const liste = d.parcelles
-    .filter((p) => !!p.archivee === archivees)
+  const [culture, setCulture] = useState<string | null>(null);
+  const actives = d.parcelles.filter((p) => !!p.archivee === archivees);
+  const cultures = [...actives.reduce((m, p) => m.set(cultureDe(p), (m.get(cultureDe(p)) ?? 0) + 1), new Map<string, number>())].sort((a, b) => b[1] - a[1]);
+  const liste = actives
+    .filter((p) => culture == null || cultureDe(p) === culture)
     .sort((a, b) => a.nom.localeCompare(b.nom, 'fr', { numeric: true }));
   const avecContour = d.parcelles.filter((p) => !p.archivee && p.contour.length > 0);
 
@@ -37,6 +41,19 @@ export default function Parcelles() {
         <Puce titre="En production" actif={!archivees} onPress={() => setArchivees(false)} />
         <Puce titre="Archivées" actif={archivees} onPress={() => setArchivees(true)} />
       </Ligne>
+      {cultures.length > 1 && (
+        <Ligne>
+          <Puce titre={`Toutes (${actives.length})`} actif={culture == null} onPress={() => setCulture(null)} />
+          {cultures.map(([c, n]) => (
+            <Puce key={c} titre={`${c} (${n})`} actif={culture === c} onPress={() => setCulture(c)} />
+          ))}
+        </Ligne>
+      )}
+      {liste.length > 0 && (
+        <Texte doux>
+          {liste.length} parcelle(s) · {fmt(liste.reduce((s, p) => s + p.surfaceHa, 0))} ha
+        </Texte>
+      )}
 
       {liste.length === 0 && (
         <Vide
@@ -52,11 +69,11 @@ export default function Parcelles() {
             <View style={{ flex: 1, gap: 2 }}>
               <Texte gras>{p.nom}</Texte>
               <Texte doux>
-                {fmt(p.surfaceHa)} ha{p.cepage ? ` · ${p.cepage}` : ''}
-                {p.ecartementM && p.rangsParPassage ? ` · ${fmt(p.ecartementM * p.rangsParPassage)} m par passage` : ''}
+                {fmt(p.surfaceHa)} ha · {cultureDe(p)}{p.cepage ? ` · ${p.cepage}` : ''}
+                {largeurTraitee(p) ? ` · ${fmt(largeurTraitee(p)!)} m par passage` : ''}
               </Texte>
             </View>
-            {!(p.ecartementM && p.rangsParPassage) && <Badge texte="À compléter" ton="attention" />}
+            {!largeurTraitee(p) && !['Jachère', 'Prairie', 'Bois / haie'].includes(cultureDe(p)) && <Badge texte="À compléter" ton="attention" />}
           </Ligne>
         </Carte>
       ))}

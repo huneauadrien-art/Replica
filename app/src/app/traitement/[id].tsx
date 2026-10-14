@@ -1,6 +1,7 @@
 import { router, Stack, useLocalSearchParams } from 'expo-router';
 import { useMemo, useState } from 'react';
 import { View } from 'react-native';
+import { cultureDe } from '../../core/cultures';
 import { controlerTraitement, dateRecolteMin, fmt, rentreePossible, stockActuel } from '../../core/registre';
 import type { Traitement } from '../../core/types';
 import { aujourdhui, maintenant, nouvelId, remplacer, useStore } from '../../data/store';
@@ -32,11 +33,17 @@ export default function FicheTraitement() {
   const [temperature, setTemperature] = useState(versTexte(existant?.temperatureC));
   const [notes, setNotes] = useState(existant?.notes ?? '');
   const [tenter, setTenter] = useState(false);
+  // Filtre des parcelles par culture : la vigne d'office, car c'est elle qu'on traite le plus.
+  const [filtreCulture, setFiltreCulture] = useState<string | null>(() =>
+    d.parcelles.some((p) => !p.archivee && cultureDe(p) === 'Vigne') ? 'Vigne' : null,
+  );
 
   if (!existant && !nouveau) return <Ecran><Texte>Traitement introuvable.</Texte></Ecran>;
 
-  const parcelles = d.parcelles
-    .filter((p) => !p.archivee || p.id in surfaces)
+  const toutes = d.parcelles.filter((p) => !p.archivee || p.id in surfaces);
+  const culturesPresentes = [...new Set(toutes.map(cultureDe))].sort((a, b) => (a === 'Vigne' ? -1 : b === 'Vigne' ? 1 : a.localeCompare(b, 'fr')));
+  const parcelles = toutes
+    .filter((p) => filtreCulture == null || cultureDe(p) === filtreCulture || p.id in surfaces)
     .sort((a, b) => a.nom.localeCompare(b.nom, 'fr', { numeric: true }));
   const produits = d.produits.filter((p) => !p.archive || p.id in doses).sort((a, b) => a.nom.localeCompare(b.nom, 'fr'));
 
@@ -116,7 +123,16 @@ export default function FicheTraitement() {
       </Ligne>
 
       <SousTitre>Parcelles</SousTitre>
-      {parcelles.length === 0 && <Texte doux>Ajoutez d'abord vos parcelles (onglet Parcelles).</Texte>}
+      {toutes.length === 0 && <Texte doux>Ajoutez d'abord vos parcelles (onglet Parcelles).</Texte>}
+      {culturesPresentes.length > 1 && (
+        <Ligne>
+          <Texte doux>Afficher :</Texte>
+          {culturesPresentes.map((c) => (
+            <Puce key={c} titre={c} actif={filtreCulture === c} onPress={() => setFiltreCulture(c)} />
+          ))}
+          <Puce titre="Toutes" actif={filtreCulture == null} onPress={() => setFiltreCulture(null)} />
+        </Ligne>
+      )}
       <Ligne>
         {parcelles.map((p) => (
           <Puce key={p.id} titre={p.nom} actif={p.id in surfaces} onPress={() => basculerParcelle(p.id, p.surfaceHa)} />
@@ -124,7 +140,7 @@ export default function FicheTraitement() {
       </Ligne>
       {parcelles.length > 1 && (
         <Bouton
-          titre={Object.keys(surfaces).length === parcelles.length ? 'Tout décocher' : 'Toutes les parcelles'}
+          titre={Object.keys(surfaces).length === parcelles.length ? 'Tout décocher' : `Toutes les parcelles${filtreCulture ? ` (${filtreCulture.toLowerCase()})` : ''}`}
           variante="secondaire"
           onPress={() =>
             setSurfaces(Object.keys(surfaces).length === parcelles.length ? {} : Object.fromEntries(parcelles.map((p) => [p.id, versTexte(p.surfaceHa)])))

@@ -1,11 +1,12 @@
 import { router, Stack, useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
 import { View } from 'react-native';
+import { CULTURES, cultureDe } from '../../core/cultures';
 import { fmt } from '../../core/registre';
 import type { Parcelle } from '../../core/types';
 import { nouvelId, remplacer, useStore } from '../../data/store';
 import { ApercuParcelle } from '../../ui/ApercuParcelle';
-import { Bouton, Carte, Champ, ChampNombre, confirmer, Ecran, Ligne, lireNombre, ListeAlertes, SousTitre, Texte, versTexte } from '../../ui/kit';
+import { Bouton, Carte, Champ, ChampNombre, confirmer, Ecran, Ligne, lireNombre, ListeAlertes, Puce, SousTitre, Texte, versTexte } from '../../ui/kit';
 
 export default function FicheParcelle() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -15,14 +16,19 @@ export default function FicheParcelle() {
 
   const [nom, setNom] = useState(existante?.nom ?? '');
   const [surface, setSurface] = useState(versTexte(existante?.surfaceHa));
+  const cultureInitiale = existante ? cultureDe(existante) : 'Vigne';
+  const [culture, setCulture] = useState(cultureInitiale);
+  const [autre, setAutre] = useState(!(CULTURES as readonly string[]).includes(cultureInitiale));
   const [cepage, setCepage] = useState(existante?.cepage ?? '');
+  const [largeurRampe, setLargeurRampe] = useState(versTexte(existante?.largeurM));
   const [ecartement, setEcartement] = useState(versTexte(existante?.ecartementM));
   const [rangs, setRangs] = useState(versTexte(existante?.rangsParPassage));
   const [erreur, setErreur] = useState<string | null>(null);
 
   if (!existante && !nouvelle) return <Ecran><Texte>Parcelle introuvable.</Texte></Ecran>;
 
-  const largeur = (lireNombre(ecartement) ?? 0) * (lireNombre(rangs) ?? 0);
+  const vigne = culture === 'Vigne';
+  const largeur = vigne ? (lireNombre(ecartement) ?? 0) * (lireNombre(rangs) ?? 0) : (lireNombre(largeurRampe) ?? 0);
   const traitements = d.traitements
     .filter((t) => t.parcelles.some((tp) => tp.parcelleId === id))
     .sort((a, b) => b.date.localeCompare(a.date));
@@ -36,9 +42,11 @@ export default function FicheParcelle() {
       id: existante?.id ?? nouvelId(),
       nom: nom.trim(),
       surfaceHa: s,
-      cepage: cepage.trim() || undefined,
-      ecartementM: lireNombre(ecartement),
-      rangsParPassage: lireNombre(rangs),
+      culture: culture.trim() || 'Autre',
+      cepage: vigne ? cepage.trim() || undefined : undefined,
+      ecartementM: vigne ? lireNombre(ecartement) : existante?.ecartementM,
+      rangsParPassage: vigne ? lireNombre(rangs) : existante?.rangsParPassage,
+      largeurM: vigne ? existante?.largeurM : lireNombre(largeurRampe),
     };
     modifier((x) => ({ ...x, parcelles: remplacer(x.parcelles, p) }));
     router.back();
@@ -70,23 +78,43 @@ export default function FicheParcelle() {
           <View style={{ alignItems: 'center' }}>
             <ApercuParcelle contours={[existante.contour]} taille={220} />
           </View>
-          {existante.codeCulture ? <Texte doux>Culture PAC : {existante.codeCulture}</Texte> : null}
+          {existante.codeCulture ? <Texte doux>Code culture PAC : {existante.codeCulture}</Texte> : null}
         </Carte>
       )}
 
       <Champ label="Nom" value={nom} onChangeText={setNom} placeholder="Les Graves" />
       <ChampNombre label="Surface (ha)" valeur={surface} onChange={setSurface} placeholder="1,25" />
-      <Champ label="Cépage" value={cepage} onChangeText={setCepage} placeholder="Merlot" />
+
+      <SousTitre>Culture</SousTitre>
       <Ligne>
-        <View style={{ flex: 1 }}>
-          <ChampNombre label="Écartement (m)" valeur={ecartement} onChange={setEcartement} placeholder="2,0" />
-        </View>
-        <View style={{ flex: 1 }}>
-          <ChampNombre label="Rangs par passage" valeur={rangs} onChange={setRangs} placeholder="2" />
-        </View>
+        {CULTURES.map((c) => (
+          <Puce key={c} titre={c} actif={!autre && culture === c} onPress={() => { setAutre(false); setCulture(c); }} />
+        ))}
+        <Puce titre="Autre…" actif={autre} onPress={() => { setAutre(true); setCulture(''); }} />
       </Ligne>
+      {autre && <Champ label="Précisez la culture" value={culture} onChangeText={setCulture} placeholder="Noyers, maraîchage…" />}
+
+      {vigne ? (
+        <>
+          <Champ label="Cépage" value={cepage} onChangeText={setCepage} placeholder="Merlot" />
+          <Ligne>
+            <View style={{ flex: 1 }}>
+              <ChampNombre label="Écartement (m)" valeur={ecartement} onChange={setEcartement} placeholder="2,0" />
+            </View>
+            <View style={{ flex: 1 }}>
+              <ChampNombre label="Rangs par passage" valeur={rangs} onChange={setRangs} placeholder="2" />
+            </View>
+          </Ligne>
+        </>
+      ) : (
+        <ChampNombre label="Largeur de la rampe (m)" valeur={largeurRampe} onChange={setLargeurRampe} placeholder="24" />
+      )}
       <Texte doux>
-        {largeur > 0 ? `Largeur traitée à chaque passage : ${fmt(largeur)} m.` : 'Écartement × rangs par passage = largeur traitée, utilisée par le GPS.'}
+        {largeur > 0
+          ? `Largeur traitée à chaque passage : ${fmt(largeur)} m.`
+          : vigne
+            ? 'Écartement × rangs par passage = largeur traitée, utilisée par le GPS.'
+            : 'La largeur de la rampe sert au GPS pour compter les hectares.'}
       </Texte>
 
       {erreur && <ListeAlertes alertes={[{ niveau: 'danger', message: erreur }]} />}

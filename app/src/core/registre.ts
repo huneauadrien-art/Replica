@@ -1,6 +1,7 @@
 // Calculs du registre phytosanitaire et du stock. Pas d'accès au téléphone ici :
 // tout est testable (voir registre.test.ts).
 
+import { cultureDe } from './cultures';
 import type { Donnees, Produit, Traitement } from './types';
 
 // --- quantités et stock -----------------------------------------------------
@@ -178,7 +179,7 @@ export function lignesRegistre(d: Donnees, annee?: number): LigneRegistre[] {
           heure: [t.heureDebut, t.heureFin].filter(Boolean).join('–'),
           parcelle: parcelle?.nom ?? '(parcelle supprimée)',
           surfaceHa: tp.surfaceHa,
-          culture: 'Vigne',
+          culture: parcelle ? cultureDe(parcelle) : '',
           produit: produit?.nom ?? '(produit supprimé)',
           amm: produit?.amm ?? '',
           doseHa: pr.doseHa,

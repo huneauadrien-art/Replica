@@ -8,7 +8,11 @@ export type Parcelle = {
   nom: string;
   /** Surface en hectares (surface PAC si elle existe, sinon calculée). */
   surfaceHa: number;
+  /** Culture choisie (Vigne, Céréales, Jachère…). Vide : déduite du code PAC. */
+  culture?: string;
   cepage?: string;
+  /** Hors vigne : largeur de la rampe du pulvérisateur, en mètres. */
+  largeurM?: number;
   /** Distance entre deux rangs, en mètres. */
   ecartementM?: number;
   /** Nombre de rangs traités à chaque passage du pulvérisateur. */
