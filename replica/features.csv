@@ -1,0 +1,34 @@
+feature,area,priority,original,clone,notes
+Créer domaine et plusieurs vignobles,paramètres,must,yes,no,avis Capterra : deux vignobles gérés séparément
+Carte SIG des parcelles,carte,must,yes,no,source 1
+Dessiner et modifier une parcelle sur la carte,carte,must,yes,no,source 1 « create blocks »
+Liste et fiche parcelle (cépage surface année),parcelles,must,yes,no,champs agronomiques déduits
+Historique complet d'une parcelle,parcelles,must,yes,no,source 1 et 3
+Créer un ordre de travail par tâche,travaux,must,yes,no,source 1
+Affecter un travail à plusieurs employés,travaux,must,yes,no,source 1
+Planning des travaux (calendrier ou liste),travaux,must,yes,no,déduit
+App mobile : voir et réaliser ses travaux,mobile,must,yes,no,« 80 % de la saisie sur smartphone » (source 7)
+Enregistrer un traitement (produit dose surface),traitements,must,yes,no,« spraying management »
+Saisir les heures par employé et par tâche,personnel,must,yes,no,source 2
+Comptes utilisateurs et rôles,paramètres,must,yes,no,déduit
+Questionnaire rempli sur place à la parcelle,mobile,should,yes,no,avis Capterra Canada
+Suivi de maturité (Brix pH) par parcelle,maturité,should,yes,no,source 3
+Analyses pré-vendange affichées sur la carte,carte,should,yes,no,source 3
+Coût par parcelle (main-d'œuvre intrants matériel),coûts,should,yes,no,source 2
+Coûts et productivité par cépage ou vignoble,rapports,should,yes,no,source 8
+Catalogue des produits et intrants avec prix,stock,should,yes,no,déduit des coûts d'intrants
+Parc matériel et tracteurs,matériel,should,yes,no,source 2
+Rapports en tableaux croisés,rapports,should,yes,no,point fort cité dans les avis
+Export PDF et CSV,rapports,should,yes,no,déduit
+Position GPS des tracteurs en temps réel,matériel,could,yes,no,via GPS du téléphone ou boîtier du commerce
+Avancement des opérateurs sur la carte,carte,could,yes,no,source 2
+Notifications de nouveaux travaux sur mobile,mobile,could,yes,no,déduit
+Saisie hors ligne avec synchronisation,mobile,could,yes,no,non confirmé chez l'original ; utile dans les vignes
+Graphiques de maturité comparés entre parcelles,maturité,could,yes,no,déduit
+Boîtiers GPS propriétaires,matériel,could,yes,skip,matériel vendu par l'éditeur
+Pesticide Use Report et TTB 5120.17,réglementaire,could,yes,skip,formulaires américains sans usage en France
+Portail clients des prestataires viticoles,prestataires,could,yes,skip,sans objet pour un domaine en interne
+Registre phytosanitaire réglementaire (export),réglementaire,must,no,no,ajout France
+Contrôles DAR ZNT et délai de rentrée,réglementaire,should,no,no,ajout France
+Calcul de l'IFT par parcelle et par campagne,réglementaire,should,no,no,ajout France
+Import du parcellaire (fichier ou cadastre),parcelles,could,no,no,ajout pour démarrer vite
