@@ -47,5 +47,4 @@ npx tsc -p serveur/tsconfig.json
 CODE=essai DONNEES=./donnees SITE=./dist node build-serveur/serveur/index.js
 ```
 
- Les écrans
-(Expo Router) sont dans `src/app/`.
+Les écrans (Expo Router) sont dans `src/app/`.
