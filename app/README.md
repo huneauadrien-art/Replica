@@ -17,7 +17,10 @@ viticole, avec le suivi du stock de produits.
 - **Registre** : une ligne par parcelle et par produit, par campagne, en PDF ou en CSV
   (Excel). Sauvegarde complète en JSON.
 
-Les données restent sur le téléphone.
+Les données restent sur le téléphone, et se synchronisent avec le serveur du NAS
+quand il est configuré (voir [`nas/README.md`](../nas/README.md)) : chaque appareil
+travaille hors ligne et envoie ses modifications au retour du réseau ; en cas de
+modification d'une même fiche sur deux appareils, la plus récente l'emporte.
 
 ## Installer
 
@@ -36,5 +39,13 @@ npm run typecheck
 npx expo start      # puis Expo Go ou un build de développement
 ```
 
-Le code métier, sans dépendance au téléphone, est dans `src/core/`. Les écrans
+Le code métier, sans dépendance au téléphone, est dans `src/core/` (dont `sync.ts`,
+partagé avec le serveur). Le serveur du NAS est dans `serveur/` (Node, sans dépendance) :
+
+```bash
+npx tsc -p serveur/tsconfig.json
+CODE=essai DONNEES=./donnees SITE=./dist node build-serveur/serveur/index.js
+```
+
+ Les écrans
 (Expo Router) sont dans `src/app/`.

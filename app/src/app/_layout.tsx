@@ -21,6 +21,7 @@ export default function Racine() {
         <Stack.Screen name="parcelle/[id]" options={{ title: 'Parcelle' }} />
         <Stack.Screen name="produit/[id]" options={{ title: 'Produit' }} />
         <Stack.Screen name="traitement/[id]" options={{ title: 'Traitement' }} />
+        <Stack.Screen name="reglages" options={{ title: 'Serveur NAS' }} />
       </Stack>
     </StoreProvider>
   );

@@ -1,0 +1,15 @@
+# Registre Vigne sur le NAS. Dans UGOS Pro : Docker › Projet › Créer, collez ce fichier.
+services:
+  registre-vigne:
+    image: ghcr.io/huneauadrien-art/registre-vigne:latest
+    container_name: registre-vigne
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    environment:
+      # Le code que l'app demandera. Choisissez-en un long, sans espace.
+      CODE: "remplacez-par-votre-code"
+      TZ: "Europe/Paris"
+    volumes:
+      # Les données et les sauvegardes quotidiennes, dans le dossier du projet sur le NAS.
+      - ./donnees:/donnees

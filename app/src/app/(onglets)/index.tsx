@@ -2,10 +2,10 @@ import { router } from 'expo-router';
 import { View } from 'react-native';
 import { fmt, nomsParcelles, quantitesUtilisees, stockActuel, stockBas, surfaceTraitee } from '../../core/registre';
 import { useStore } from '../../data/store';
-import { Badge, Bouton, Carte, Ecran, SousTitre, Texte, Titre, Vide } from '../../ui/kit';
+import { Badge, Bouton, Carte, Ecran, Ligne, SousTitre, Texte, Titre, Vide } from '../../ui/kit';
 
 export default function Accueil() {
-  const { donnees: d, pret } = useStore();
+  const { donnees: d, pret, synchro } = useStore();
   if (!pret) return null;
 
   const annee = new Date().getFullYear();
@@ -14,6 +14,26 @@ export default function Accueil() {
   const traitementsAnnee = d.traitements.filter((t) => t.date.startsWith(String(annee)));
   const bas = d.produits.filter((p) => !p.archive && stockBas(d, p));
   const derniers = [...d.traitements].sort((a, b) => b.date.localeCompare(a.date)).slice(0, 3);
+
+  const nas = (
+    <Carte onPress={() => router.push('/reglages')}>
+      <Ligne>
+        <View style={{ flex: 1 }}>
+          <Texte gras>Serveur NAS</Texte>
+          <Texte doux>
+            {!synchro.serveur
+              ? 'Non relié : les données restent sur ce téléphone.'
+              : synchro.dernier?.ok === false
+                ? `Hors ligne · ${synchro.enAttente} modification(s) en attente`
+                : synchro.enAttente > 0
+                  ? `${synchro.enAttente} modification(s) à envoyer`
+                  : 'Synchronisé'}
+          </Texte>
+        </View>
+        <Badge texte={synchro.serveur ? (synchro.dernier?.ok === false ? 'Hors ligne' : 'Relié') : 'Configurer'} ton={synchro.serveur ? (synchro.dernier?.ok === false ? 'attention' : 'ok') : 'neutre'} />
+      </Ligne>
+    </Carte>
+  );
 
   if (parcelles.length === 0)
     return (
@@ -25,6 +45,7 @@ export default function Accueil() {
             <Bouton titre="Ajouter une parcelle à la main" variante="secondaire" onPress={() => router.push('/parcelle/nouvelle')} />
           </View>
         </Vide>
+        {nas}
       </Ecran>
     );
 
@@ -70,6 +91,8 @@ export default function Accueil() {
           {t.cible ? <Badge texte={t.cible} /> : null}
         </Carte>
       ))}
+
+      {nas}
     </Ecran>
   );
 }

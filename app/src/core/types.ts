@@ -5,6 +5,8 @@ export type Anneau = [number, number][];
 
 export type Parcelle = {
   id: string;
+  /** Heure de la dernière modification (synchronisation avec le NAS). */
+  maj?: number;
   nom: string;
   /** Surface en hectares (surface PAC si elle existe, sinon calculée). */
   surfaceHa: number;
@@ -30,6 +32,8 @@ export type Unite = 'L' | 'kg';
 
 export type Produit = {
   id: string;
+  /** Heure de la dernière modification (synchronisation avec le NAS). */
+  maj?: number;
   nom: string;
   /** Numéro d'autorisation de mise sur le marché. */
   amm?: string;
@@ -50,6 +54,8 @@ export type Produit = {
 /** Entrée ou correction de stock. Les sorties dues aux traitements sont calculées. */
 export type MouvementStock = {
   id: string;
+  /** Heure de la dernière modification (synchronisation avec le NAS). */
+  maj?: number;
   produitId: string;
   /** AAAA-MM-JJ */
   date: string;
@@ -66,6 +72,8 @@ export type TraitementProduit = { produitId: string; doseHa: number };
 
 export type Traitement = {
   id: string;
+  /** Heure de la dernière modification (synchronisation avec le NAS). */
+  maj?: number;
   /** AAAA-MM-JJ */
   date: string;
   /** HH:MM */

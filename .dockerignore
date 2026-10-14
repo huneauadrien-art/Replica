@@ -1,0 +1,7 @@
+.git
+**/node_modules
+app/dist
+app/build-serveur
+app/.expo
+replica
+.claude
