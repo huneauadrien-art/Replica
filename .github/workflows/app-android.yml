@@ -1,0 +1,52 @@
+# Construit l'app Android (.apk) et la met en téléchargement dans la release « android-latest ».
+name: App Android
+
+on:
+  push:
+    branches: [main, claude/replica-skill-install-u8a3g6]
+    paths: ['app/**', '.github/workflows/app-android.yml']
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: app-android-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  apk:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: app
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: app/package-lock.json
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+      - run: npm ci
+      - run: npx tsc --noEmit
+      - run: npm test
+      - run: npx expo prebuild --platform android --no-install
+      - name: Construire l'apk
+        working-directory: app/android
+        run: ./gradlew assembleRelease --no-daemon
+      - name: Publier l'apk
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          cp android/app/build/outputs/apk/release/app-release.apk registre-vigne.apk
+          NOTES="Version du $(date -u +'%Y-%m-%d %H:%M') UTC, commit ${GITHUB_SHA::7}. Sur Android : téléchargez registre-vigne.apk, puis autorisez l'installation depuis le navigateur."
+          if gh release view android-latest >/dev/null 2>&1; then
+            gh release edit android-latest --notes "$NOTES" --target "$GITHUB_SHA"
+            gh release upload android-latest registre-vigne.apk --clobber
+          else
+            gh release create android-latest registre-vigne.apk --prerelease --title "Registre Vigne – Android" --notes "$NOTES" --target "$GITHUB_SHA"
+          fi
