@@ -1,6 +1,6 @@
 import { strToU8, zipSync } from 'fflate';
 import { describe, expect, it } from 'vitest';
-import { choisirCouche, proposerParcelles } from '../importParcelles';
+import { choisirCouche, fusionnerImport, proposerParcelles } from '../importParcelles';
 import { lireZipParcellaire } from '../shapefile';
 
 const PRJ_L93 =
@@ -188,4 +188,55 @@ describe('import du zip parcellaire', () => {
     expect(() => lireZipParcellaire(zipSync({ 'lisezmoi.txt': strToU8('x') }))).toThrow(/Aucun fichier \.shp/);
     expect(() => lireZipParcellaire(strToU8('pas un zip'))).toThrow(/zip lisible/);
   });
+
+  it('importe les 65 parcelles même quand elles partagent une commune et que les îlots sont à côté', () => {
+    // 65 parcelles sur 25 communes, plus une couche de 25 îlots, avec des noms de fichier sans « parcelle ».
+    const parcelles = Array.from({ length: 65 }, (_, i) => [carre(420000 + i * 200, 6420000, 100)]);
+    const ilots = Array.from({ length: 25 }, (_, i) => [carre(420000 + i * 600, 6420000, 300)]);
+    const champs = [
+      { nom: 'NOM_COMMUN', type: 'C' as const, taille: 12 },
+      { nom: 'NUM_ILOT', type: 'N' as const, taille: 4 },
+      { nom: 'NUM_PARCEL', type: 'N' as const, taille: 4 },
+      { nom: 'CULTURE_D1', type: 'C' as const, taille: 5 },
+      { nom: 'CODE_CULTU', type: 'C' as const, taille: 5 },
+    ];
+    const lignes = parcelles.map((_, i) => [`Commune ${i % 25}`, Math.floor(i / 3) + 1, (i % 3) + 1, '', i < 40 ? 'VRC' : 'PTR']);
+    const zip = zipSync({
+      'PAC_2026_ILOTS.shp': ecrireShp(ilots),
+      'PAC_2026_ILOTS.dbf': ecrireDbf([{ nom: 'NUM_ILOT', type: 'N', taille: 4 }], ilots.map((_, i) => [i + 1])),
+      'PAC_2026_ILOTS.prj': strToU8(PRJ_L93),
+      'PAC_2026_PG.shp': ecrireShp(parcelles),
+      'PAC_2026_PG.dbf': ecrireDbf(champs, lignes),
+      'PAC_2026_PG.prj': strToU8(PRJ_L93),
+    });
+
+    const couche = choisirCouche(lireZipParcellaire(zip));
+    expect(couche.nom).toBe('PAC_2026_PG');
+    const props = proposerParcelles(couche);
+    expect(props).toHaveLength(65);
+    expect(new Set(props.map((p) => p.nom)).size).toBe(65);
+    expect(props[0].nom).toBe('Îlot 1 – parcelle 1');
+    expect(props.filter((p) => p.estVigne)).toHaveLength(40);
+
+    let n = 0;
+    const importees = fusionnerImport([], props, { ecartementM: 2, rangsParPassage: 2 }, () => `id${n++}`);
+    expect(importees).toHaveLength(65);
+  });
+
+  it('ne fusionne jamais deux lignes du fichier portant le même nom', () => {
+    const zip = zipSync({
+      'p.shp': ecrireShp([[carre(420000, 6420000, 100)], [carre(420200, 6420000, 100)]]),
+      'p.dbf': ecrireDbf([{ nom: 'NOM', type: 'C', taille: 10 }], [['Les Côtes'], ['Les Côtes']]),
+      'p.prj': strToU8(PRJ_L93),
+    });
+    const props = proposerParcelles(choisirCouche(lireZipParcellaire(zip)));
+    expect(props.map((p) => p.nom)).toEqual(['Les Côtes (1)', 'Les Côtes (2)']);
+    // Ré-import : chaque parcelle existante est mise à jour une fois, sans doublon.
+    let n = 0;
+    const premiere = fusionnerImport([], props, {}, () => `id${n++}`);
+    const seconde = fusionnerImport(premiere.map((p) => ({ ...p, cepage: 'Merlot' })), props, {}, () => `id${n++}`);
+    expect(seconde).toHaveLength(2);
+    expect(seconde.every((p) => p.cepage === 'Merlot')).toBe(true);
+  });
 });
+
