@@ -1,0 +1,27 @@
+feature,area,priority,original,clone,notes
+Registre phytosanitaire électronique,registre,must,yes,yes,PDF et CSV
+Import du parcellaire PAC,parcelles,must,yes,yes,zip Telepac
+Stock des intrants mis à jour par les interventions,stock,must,yes,yes,
+Saisie groupée sur plusieurs parcelles,interventions,must,yes,yes,
+Saisie mobile sans réseau,mobile,must,yes,partial,app Android oui ; web iPhone à vérifier hors réseau
+Contrôles réglementaires avant traitement,réglementaire,must,yes,partial,dose vent AMM DAR DRE ; manque mélanges nombre max d'applications délais
+Toutes les interventions (semis fertilisation travail du sol taille vendange),interventions,must,yes,no,
+Calcul de l'IFT par parcelle et par culture,indicateurs,must,yes,no,méthode publique
+Carte du parcellaire,carte,should,yes,partial,aperçus sans fond de carte
+Cahier d'épandage et cumul d'azote,fertilisation,should,yes,no,
+Plan prévisionnel de fumure (PPF),fertilisation,should,yes,no,module en option chez Smag
+Matériel et coût horaire,matériel,should,yes,no,
+Personnel et heures,personnel,should,yes,no,
+Coûts de production et marges par culture,indicateurs,should,yes,no,
+ZNT et SPE gérées automatiquement,réglementaire,should,yes,partial,ZNT saisie sur le produit sans carte
+Observations terrain avec photo,observations,should,yes,no,
+Tableaux de bord,indicateurs,could,yes,partial,accueil
+Export pour l'enquête Stat'Phyto,réglementaire,could,yes,no,
+Score de diversité et export XML PAC,pac,could,yes,no,
+Plusieurs exploitations,paramètres,could,yes,no,
+Assistant vocal de saisie,mobile,could,yes,no,annoncé par Smag
+Catalogue officiel des produits (E-Phy Anses),réglementaire,should,no,no,ajout : données publiques
+Suivi GPS du pulvérisateur et surface traitée,gps,must,no,no,ajout : étape 2 demandée
+Indices satellite et modulation,précision,could,yes,skip,données de partenaires payants
+Certification ministérielle de l'IFT,indicateurs,could,yes,skip,certification propre à Smag
+Partage avec le conseiller de coopérative,partage,could,yes,skip,réseau de distribution de Smag
