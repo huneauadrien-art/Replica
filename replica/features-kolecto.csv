@@ -1,0 +1,17 @@
+feature,area,priority,original,clone,notes
+Ajouter une facture d'achat (PDF ou photo),factures,must,yes,no,
+Lecture automatique des factures Factur-X (lignes prix TVA),factures,must,yes,no,format ouvert ; Kolecto le reçoit via sa plateforme agréée
+Lignes de facture reliées aux produits du stock,stock,must,no,no,ajout : lien registre
+Entrée en stock avec prix unitaire depuis la facture,stock,must,no,no,ajout : lien registre
+Pièces jointes conservées sur le NAS,factures,must,yes,no,
+Coût des traitements par parcelle et par culture,coûts,should,no,no,ajout : lien registre
+Export pour l'expert-comptable (CSV et PDF),export,must,yes,no,
+Accès en lecture seule de l'expert-comptable,export,could,yes,no,
+Détection d'une facture importée deux fois,factures,should,yes,no,
+Photo de facture avec lecture automatique (OCR),factures,could,yes,no,moins fiable que Factur-X
+Tableau de bord des dépenses par catégorie,indicateurs,could,yes,no,
+Import d'un relevé bancaire CSV et rapprochement,banque,could,yes,no,
+Plateforme agréée de réception et d'émission,réglementaire,must,yes,skip,agrément fiscal : garder une plateforme agréée
+Agrégation bancaire automatique,banque,should,yes,skip,service bancaire agréé (DSP2)
+Comptabilité et export FEC,compta,could,yes,skip,tenue par l'expert-comptable
+Devis factures de vente et relances,ventes,could,yes,skip,vente en coopérative / négoce
