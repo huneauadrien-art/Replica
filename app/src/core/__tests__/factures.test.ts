@@ -169,8 +169,8 @@ describe('coûts et export', () => {
     const f = { ...facturePreparee(lireFactureElectronique(fixture('facture-coop-facturx.pdf')), d.produits, 'f1'), piece: { id: 'x', nom: 'Facture.PDF', type: 'application/pdf', taille: 1 } };
     expect(nomPiece(f)).toBe('2026-09-15_COOPERATIVE-EXEMPLE-DES-COTEAUX_FA-2026-00417.pdf');
     const csv = exportComptableCsv([f, { ...f, id: 'f2', type: 'avoir', numero: 'AV-1', piece: undefined }]);
-    expect(csv).toContain('2026-09-15;Cooperative Exemple des Coteaux;FA-2026-00417;Facture;277,00;55,40;332,40;2026-09-15_');
-    expect(csv).toContain('AV-1;Avoir;-277,00;-55,40;-332,40;(pas de pièce)');
+    expect(csv).toContain('2026-09-15;Cooperative Exemple des Coteaux;FA-2026-00417;Facture;277,00;55,40;;332,40;2026-09-15_');
+    expect(csv).toContain('AV-1;Avoir;-277,00;-55,40;;-332,40;(pas de pièce)');
   });
 });
 

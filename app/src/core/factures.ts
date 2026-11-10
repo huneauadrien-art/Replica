@@ -91,26 +91,35 @@ function correspondanceConnue(produits: Produit[], fournisseur: string, libelle:
   return undefined;
 }
 
-/** Transforme une facture lue en facture de l'app, avec chaque ligne reliée au bon produit quand c'est possible. */
-export function facturePreparee(lue: FactureLue, produits: Produit[], id: string): FactureAchat {
+/**
+ * Transforme une facture lue en facture de l'app, avec chaque ligne reliée au bon produit quand
+ * c'est possible. Le nom du fournisseur reprend celui d'une facture précédente de même n° de TVA.
+ */
+export function facturePreparee(lue: FactureLue, produits: Produit[], id: string, factures: FactureAchat[] = []): FactureAchat {
   const actifs = produits.filter((p) => !p.archive);
+  const connue = lue.tvaFournisseur ? [...factures].reverse().find((f) => f.tvaFournisseur === lue.tvaFournisseur && f.fournisseur) : undefined;
+  const fournisseur = connue?.fournisseur ?? lue.fournisseur;
   return {
     id,
     type: lue.type,
-    fournisseur: lue.fournisseur,
+    fournisseur,
+    tvaFournisseur: lue.tvaFournisseur,
     numero: lue.numero,
     date: lue.date,
     totalHT: lue.totalHT,
     totalTVA: lue.totalTVA,
     totalTTC: lue.totalTTC,
-    source: 'facturx',
-    lignes: lue.lignes.map((l) => relierLigne(l, lue.fournisseur, actifs)),
+    taxes: lue.taxes,
+    source: lue.origine === 'texte' ? 'pdf' : 'facturx',
+    lignes: lue.lignes.map((l) => relierLigne(l, fournisseur, actifs)),
   };
 }
 
 export function relierLigne(l: LigneLue, fournisseur: string, produits: Produit[]): LigneFacture {
   const connue = correspondanceConnue(produits, fournisseur, l.libelle);
-  const produit = connue?.produit ?? produitParNom(l.libelle, produits);
+  // Le n° AMM est le lien le plus sûr ; puis un libellé déjà vu ; puis le nom.
+  const parAmm = l.amm ? produits.find((p) => p.amm && p.amm.replace(/\D/g, '') === l.amm!.replace(/\D/g, '')) : undefined;
+  const produit = parAmm ?? connue?.produit ?? produitParNom(l.libelle, produits);
   const facteur = connue?.c.facteur ?? (produit ? facteurConversion(l, produit) : undefined);
   return {
     ...l,
@@ -144,9 +153,11 @@ export function enregistrerFacture(d: Donnees, f: FactureAchat): Donnees {
       type: 'achat',
       quantite: signe * l.quantiteStock,
       fournisseur: f.fournisseur,
+      lot: l.lot,
       note: `${f.type === 'avoir' ? 'Avoir' : 'Facture'} ${f.numero}`,
       factureId: f.id,
-      prixUnitaireHT: arrondi(l.montantHT / l.quantiteStock),
+      // Prix de revient : montant HT plus les taxes de la ligne (redevance pollution).
+      prixUnitaireHT: arrondi((l.montantHT + (l.taxeHT ?? 0)) / l.quantiteStock),
     };
     const ancien = parId.get(id);
     // Garder le même objet quand rien ne change : la synchronisation n'envoie que ce qui change.
@@ -264,7 +275,7 @@ export function facturesDeLaPeriode(d: Donnees, du: string, au: string): Facture
 export function exportComptableCsv(factures: FactureAchat[]): string {
   const cellule = (v: string) => (/[;"\n]/.test(v) ? `"${v.replace(/"/g, '""')}"` : v);
   const lignes = [
-    ['Date', 'Fournisseur', 'Numéro', 'Type', 'Total HT', 'TVA', 'Total TTC', 'Pièce'].join(';'),
+    ['Date', 'Fournisseur', 'Numéro', 'Type', 'Total HT', 'TVA', 'Autres taxes', 'Total TTC', 'Pièce'].join(';'),
     ...factures.map((f) =>
       [
         f.date,
@@ -273,6 +284,7 @@ export function exportComptableCsv(factures: FactureAchat[]): string {
         f.type === 'avoir' ? 'Avoir' : 'Facture',
         nombreFr(f.type === 'avoir' && f.totalHT ? -Math.abs(f.totalHT) : f.totalHT),
         nombreFr(f.type === 'avoir' && f.totalTVA ? -Math.abs(f.totalTVA) : f.totalTVA),
+        nombreFr(f.type === 'avoir' && f.taxes ? -Math.abs(f.taxes) : f.taxes),
         nombreFr(f.type === 'avoir' && f.totalTTC ? -Math.abs(f.totalTTC) : f.totalTTC),
         f.piece ? nomPiece(f) : '(pas de pièce)',
       ]

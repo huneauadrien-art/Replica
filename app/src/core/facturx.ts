@@ -2,7 +2,10 @@
 // un fichier XML au format CII (Cross Industry Invoice) avec toutes les données de la facture.
 // Pas de dépendance au téléphone : tout est testable.
 
-import { strFromU8, unzlibSync, inflateSync } from 'fflate';
+import { strFromU8 } from 'fflate';
+import { decompresser, trouverFlux } from './pdfFlux';
+import { lireFactureTexte } from './facturePdf';
+import { lignesDuPdf } from './pdfTexte';
 
 export type LigneLue = {
   libelle: string;
@@ -13,6 +16,11 @@ export type LigneLue = {
   prixUnitaireHT?: number;
   montantHT: number;
   tauxTVA?: number;
+  /** N° AMM écrit sous la ligne (factures PDF de distributeurs). */
+  amm?: string;
+  lot?: string;
+  /** Taxe hors HT liée à la ligne (redevance pour pollution diffuse…), comptée dans le coût. */
+  taxeHT?: number;
 };
 
 export type FactureLue = {
@@ -24,7 +32,12 @@ export type FactureLue = {
   totalHT?: number;
   totalTVA?: number;
   totalTTC?: number;
+  /** Taxes hors TVA (redevance pollution…) incluses dans le TTC. */
+  taxes?: number;
+  tvaFournisseur?: string;
   lignes: LigneLue[];
+  /** 'texte' : lue dans le texte d'un PDF classique, à vérifier de près. */
+  origine?: 'facturx' | 'texte';
 };
 
 export class ErreurFacture extends Error {}
@@ -53,67 +66,16 @@ export function extraireXmlFacturX(pdf: Uint8Array): string | null {
 /** Lit une facture PDF Factur-X ou un fichier XML CII seul. */
 export function lireFactureElectronique(octets: Uint8Array): FactureLue {
   const entete = strFromU8(octets.subarray(0, 1024), true);
-  let xml: string | null;
   if (entete.startsWith('%PDF')) {
-    xml = extraireXmlFacturX(octets);
-    if (!xml)
-      throw new ErreurFacture("Ce PDF ne contient pas de données Factur-X : saisissez les lignes à la main.");
-  } else if (/<\?xml|<[\w:]*CrossIndustryInvoice/.test(entete)) {
-    xml = strFromU8(octets).replace(/^﻿/, '');
-  } else {
-    throw new ErreurFacture("Ce fichier n'est ni un PDF ni un XML de facture.");
+    const xml = extraireXmlFacturX(octets);
+    if (xml) return { ...lireCII(xml), origine: 'facturx' };
+    // PDF classique : lecture du texte.
+    const lue = lireFactureTexte(lignesDuPdf(octets));
+    if (lue) return { ...lue, origine: 'texte' };
+    throw new ErreurFacture("L'app n'a pas pu lire ce PDF (facture scannée ?) : saisissez les lignes à la main.");
   }
-  return lireCII(xml);
-}
-
-// --- PDF ---------------------------------------------------------------------
-
-type Flux = { dict: string; debut: number; fin: number };
-
-/** Repère les flux « stream … endstream » et le dictionnaire qui les précède. */
-function trouverFlux(pdf: Uint8Array): Flux[] {
-  const flux: Flux[] = [];
-  const motStream = [0x73, 0x74, 0x72, 0x65, 0x61, 0x6d]; // stream
-  const motFin = [0x65, 0x6e, 0x64, 0x73, 0x74, 0x72, 0x65, 0x61, 0x6d]; // endstream
-  let i = 0;
-  while ((i = chercher(pdf, motStream, i)) >= 0) {
-    // « endstream » contient « stream » : on l'ignore.
-    if (i >= 3 && pdf[i - 3] === 0x65 && pdf[i - 2] === 0x6e && pdf[i - 1] === 0x64) {
-      i += 6;
-      continue;
-    }
-    let debut = i + 6;
-    if (pdf[debut] === 0x0d) debut++;
-    if (pdf[debut] === 0x0a) debut++;
-    const fin = chercher(pdf, motFin, debut);
-    if (fin < 0) break;
-    let finDonnees = fin;
-    while (finDonnees > debut && (pdf[finDonnees - 1] === 0x0a || pdf[finDonnees - 1] === 0x0d)) finDonnees--;
-    const dict = strFromU8(pdf.subarray(Math.max(0, i - 1500), i), true);
-    flux.push({ dict: dict.slice(dict.lastIndexOf(' obj') + 1), debut, fin: finDonnees });
-    i = fin + motFin.length;
-  }
-  return flux;
-}
-
-function chercher(o: Uint8Array, motif: number[], depuis: number): number {
-  outer: for (let i = depuis; i <= o.length - motif.length; i++) {
-    for (let k = 0; k < motif.length; k++) if (o[i + k] !== motif[k]) continue outer;
-    return i;
-  }
-  return -1;
-}
-
-function decompresser(o: Uint8Array): Uint8Array | null {
-  try {
-    return unzlibSync(o);
-  } catch {
-    try {
-      return inflateSync(o);
-    } catch {
-      return null;
-    }
-  }
+  if (/<\?xml|<[\w:]*CrossIndustryInvoice/.test(entete)) return { ...lireCII(strFromU8(octets).replace(/^\uFEFF/, '')), origine: 'facturx' };
+  throw new ErreurFacture("Ce fichier n'est ni un PDF ni un XML de facture.");
 }
 
 // --- XML ---------------------------------------------------------------------

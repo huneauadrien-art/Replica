@@ -49,8 +49,10 @@ export default function FicheFacture() {
       .replace(/\d+(?:[.,]\d+)?\s*(KG|L|LT|G|ML|CL)\b.*$/i, '')
       .trim()
       .toLowerCase()
-      .replace(/^./, (c) => c.toUpperCase());
-    const produit: Produit = { id: nouvelId(), nom: nom || l.libelle, unite };
+      .replace(/^./, (c) => c.toUpperCase())
+      // Chiffres romains des gammes (Rival II, Cuprofix III…) gardés en majuscules.
+      .replace(/\b(i{1,3}|iv|vi{0,3}|ix|x)\b/g, (r) => r.toUpperCase());
+    const produit: Produit = { id: nouvelId(), nom: nom || l.libelle, unite, amm: l.amm };
     modifier((x) => ({ ...x, produits: [...x.produits, produit] }));
     relier(i, produit);
   };
@@ -131,6 +133,14 @@ export default function FicheFacture() {
           <Texte doux>Vérifiez les produits reliés et les quantités entrées en stock, puis enregistrez.</Texte>
         </Carte>
       )}
+      {f.source === 'pdf' && !existante && (
+        <Carte>
+          <Texte gras>Lue dans le texte du PDF</Texte>
+          <Texte doux>
+            Cette facture n'a pas de données Factur-X : l'app a lu son texte. Vérifiez le fournisseur, les lignes et les quantités entrées en stock avant d'enregistrer.
+          </Texte>
+        </Carte>
+      )}
 
       {f.piece && (
         <Carte>
@@ -176,6 +186,8 @@ export default function FicheFacture() {
           <ChampNombre label="TTC (€)" valeur={totaux.ttc} onChange={(v) => setTotaux({ ...totaux, ttc: v })} />
         </View>
       </Ligne>
+
+      {f.taxes ? <Texte doux>Dont autres taxes (redevance pollution…) : {euros(f.taxes)}, comprises dans le TTC.</Texte> : null}
 
       <SousTitre>Lignes ({f.lignes.length})</SousTitre>
       {f.lignes.length === 0 && <Texte doux>Ajoutez au moins les lignes de produits phyto ou d'engrais : ce sont elles qui entrent en stock.</Texte>}
@@ -270,6 +282,13 @@ function LigneEdit({
         </View>
       </Ligne>
 
+      {(l.reference || l.amm || l.lot || l.taxeHT) && (
+        <Texte doux>
+          {[l.reference && `Réf. ${l.reference}`, l.amm && `AMM ${l.amm}`, l.lot && `Lot ${l.lot}`, l.taxeHT && `Redevance ${euros(l.taxeHT)}`]
+            .filter(Boolean)
+            .join(' · ')}
+        </Texte>
+      )}
       <Pressable onPress={onChoisir} accessibilityRole="button" style={{ paddingVertical: 6 }}>
         <Ligne>
           <Texte doux>Produit du stock :</Texte>
@@ -301,7 +320,7 @@ function LigneEdit({
           }}
           aide={
             l.quantiteStock && l.montantHT
-              ? `Soit ${euros(l.montantHT / l.quantiteStock)} HT par ${produit.unite}.`
+              ? `Soit ${euros((l.montantHT + (l.taxeHT ?? 0)) / l.quantiteStock)} HT par ${produit.unite}${l.taxeHT ? ', redevance comprise' : ''}.`
               : `Combien de ${produit.unite} au total (par exemple 4 bidons de 5 L = 20).`
           }
         />

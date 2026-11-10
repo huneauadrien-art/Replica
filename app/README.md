@@ -19,6 +19,8 @@ viticole, avec le suivi du stock de produits.
 - **Factures d'achat** (onglet Stock) : le PDF reçu au format Factur-X est lu tout seul
   (fournisseur, numéro, lignes, prix, TVA) ; chaque ligne est reliée à un produit et entre en
   stock avec son prix, et l'app retient les libellés du fournisseur pour la fois suivante.
+  Les PDF classiques (sans Factur-X) des distributeurs sont lus dans leur texte : lignes,
+  n° AMM (pour relier le bon produit), lot, redevance pollution comptée dans le prix de revient.
   Photo ou saisie à la main pour les autres. Pièces gardées sur le NAS. Coûts des
   traitements par parcelle au prix moyen d'achat. Export zip (tableau + pièces) pour
   l'expert-comptable.

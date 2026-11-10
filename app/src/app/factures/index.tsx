@@ -42,7 +42,7 @@ export default function Factures() {
       let f: FactureAchat;
       let message: string | undefined;
       try {
-        f = { ...facturePreparee(lireFactureElectronique(fichier.octets), d.produits, id), piece };
+        f = { ...facturePreparee(lireFactureElectronique(fichier.octets), d.produits, id, d.factures), piece };
       } catch (e) {
         if (!(e instanceof ErreurFacture)) throw e;
         f = { ...vierge(id), piece };
@@ -140,6 +140,7 @@ export default function Factures() {
                 <Ligne>
                   {f.type === 'avoir' && <Badge texte="Avoir" />}
                   {f.source === 'facturx' && <Badge texte="Factur-X" ton="ok" />}
+                  {f.source === 'pdf' && <Badge texte="PDF lu" ton="ok" />}
                   {!f.piece && <Badge texte="Sans pièce" ton="attention" />}
                   {aRelier && <Badge texte="Produits à relier" ton="attention" />}
                   {ecartTotal(f) !== 0 && f.lignes.length > 0 && <Badge texte="Total à vérifier" ton="attention" />}

@@ -90,6 +90,10 @@ export type LigneFacture = {
   produitId?: string;
   /** Quantité entrée en stock, en L ou kg du produit. */
   quantiteStock?: number;
+  amm?: string;
+  lot?: string;
+  /** Taxe hors HT de la ligne (redevance pour pollution diffuse…), comptée dans le prix de revient. */
+  taxeHT?: number;
 };
 
 export type PieceJointe = { id: string; nom: string; type: string; taille: number };
@@ -106,9 +110,13 @@ export type FactureAchat = {
   totalHT?: number;
   totalTVA?: number;
   totalTTC?: number;
+  /** Taxes hors TVA (redevance pollution…), comprises dans le TTC. */
+  taxes?: number;
+  /** N° de TVA du fournisseur : sert à retrouver son nom sur les factures suivantes. */
+  tvaFournisseur?: string;
   lignes: LigneFacture[];
-  /** D'où viennent les lignes : lues dans le PDF Factur-X, ou saisies. */
-  source: 'facturx' | 'saisie';
+  /** D'où viennent les lignes : données Factur-X, texte d'un PDF classique, ou saisie. */
+  source: 'facturx' | 'pdf' | 'saisie';
   piece?: PieceJointe;
   notes?: string;
 };
