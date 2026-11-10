@@ -49,7 +49,12 @@ export type Produit = {
   /** En dessous de cette quantité en stock, l'app affiche une alerte. */
   seuilAlerte?: number;
   archive?: boolean;
+  /** Libellés de ce produit sur les factures des fournisseurs, appris à chaque facture. */
+  correspondances?: Correspondance[];
 };
+
+/** « BOUILLIE BORDELAISE RSR 25 KG » chez tel fournisseur = ce produit ; 1 unité facturée = `facteur` L ou kg. */
+export type Correspondance = { fournisseur: string; libelle: string; facteur: number };
 
 /** Entrée ou correction de stock. Les sorties dues aux traitements sont calculées. */
 export type MouvementStock = {
@@ -65,6 +70,47 @@ export type MouvementStock = {
   fournisseur?: string;
   lot?: string;
   note?: string;
+  /** Facture d'achat d'où vient ce mouvement (créé et mis à jour par la facture). */
+  factureId?: string;
+  /** Prix d'achat hors taxes par L ou par kg. */
+  prixUnitaireHT?: number;
+};
+
+export type LigneFacture = {
+  libelle: string;
+  reference?: string;
+  /** Quantité facturée, dans l'unité de la facture. */
+  quantite: number;
+  /** Code d'unité de la facture (KGM, LTR, C62…) ou texte libre. */
+  unite?: string;
+  prixUnitaireHT?: number;
+  montantHT: number;
+  tauxTVA?: number;
+  /** Produit du stock relié à cette ligne. */
+  produitId?: string;
+  /** Quantité entrée en stock, en L ou kg du produit. */
+  quantiteStock?: number;
+};
+
+export type PieceJointe = { id: string; nom: string; type: string; taille: number };
+
+export type FactureAchat = {
+  id: string;
+  /** Heure de la dernière modification (synchronisation avec le NAS). */
+  maj?: number;
+  type: 'facture' | 'avoir';
+  fournisseur: string;
+  numero: string;
+  /** AAAA-MM-JJ */
+  date: string;
+  totalHT?: number;
+  totalTVA?: number;
+  totalTTC?: number;
+  lignes: LigneFacture[];
+  /** D'où viennent les lignes : lues dans le PDF Factur-X, ou saisies. */
+  source: 'facturx' | 'saisie';
+  piece?: PieceJointe;
+  notes?: string;
 };
 
 export type TraitementParcelle = { parcelleId: string; surfaceHa: number };
@@ -99,6 +145,7 @@ export type Donnees = {
   produits: Produit[];
   mouvements: MouvementStock[];
   traitements: Traitement[];
+  factures: FactureAchat[];
 };
 
 export const DONNEES_VIDES: Donnees = {
@@ -107,4 +154,5 @@ export const DONNEES_VIDES: Donnees = {
   produits: [],
   mouvements: [],
   traitements: [],
+  factures: [],
 };

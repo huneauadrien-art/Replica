@@ -1,3 +1,4 @@
+/// <reference types="node" />
 import { describe, expect, it } from 'vitest';
 import { ajouterSauvegarde, lireSauvegarde } from '../sauvegarde';
 import { difference } from '../sync';
@@ -27,5 +28,18 @@ describe('sauvegarde', () => {
     const sauvegarde: Donnees = { ...DONNEES_VIDES, parcelles: [p('i', 'iPhone')] };
     const { changees } = difference(actuel, { ...actuel, ...sauvegarde }, 1);
     expect(changees.parcelles).toEqual([expect.objectContaining({ id: 'i', maj: 1 }), { id: 'x', maj: 1, supprime: true }]);
+  });
+});
+
+import { depuisBase64, versBase64 } from '../base64';
+
+describe('base64 des pièces jointes', () => {
+  it('fait l’aller-retour sur des octets quelconques, comme Node', () => {
+    for (const n of [0, 1, 2, 3, 4, 1000, 70001]) {
+      const o = new Uint8Array(n).map((_, i) => (i * 37 + 11) & 255);
+      const b = versBase64(o);
+      expect(b).toBe(Buffer.from(o).toString('base64'));
+      expect([...depuisBase64(b)]).toEqual([...o]);
+    }
   });
 });

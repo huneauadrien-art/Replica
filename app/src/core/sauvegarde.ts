@@ -38,4 +38,5 @@ export const compterFiches = (d: Donnees) => ({
   produits: d.produits.length,
   traitements: d.traitements.length,
   mouvements: d.mouvements.length,
+  factures: d.factures.length,
 });

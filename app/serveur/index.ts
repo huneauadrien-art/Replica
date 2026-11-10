@@ -19,6 +19,8 @@ const DONNEES = resolve(process.env.DONNEES ?? '/donnees');
 const SITE = resolve(process.env.SITE ?? join(__dirname, '..', 'site'));
 const FICHIER = join(DONNEES, 'registre.json');
 const SAUVEGARDES = join(DONNEES, 'sauvegardes');
+/** Pièces jointes des factures (PDF, photos), un fichier par pièce. */
+const PIECES = join(DONNEES, 'pieces');
 const JOURS_GARDES = 60;
 const TAILLE_MAX = 50 * 1024 * 1024;
 
@@ -27,6 +29,7 @@ if (!CODE) {
   process.exit(1);
 }
 mkdirSync(SAUVEGARDES, { recursive: true });
+mkdirSync(PIECES, { recursive: true });
 
 // --- données ----------------------------------------------------------------
 
@@ -92,7 +95,14 @@ const TYPES: Record<string, string> = {
   '.ico': 'image/x-icon',
   '.ttf': 'font/ttf',
   '.svg': 'image/svg+xml',
+  '.pdf': 'application/pdf',
+  '.jpg': 'image/jpeg',
+  '.jpeg': 'image/jpeg',
+  '.xml': 'application/xml',
 };
+
+/** Identifiant de pièce : lettres, chiffres et tirets, puis une extension connue. Rien d'autre n'atteint le disque. */
+const ID_PIECE = /^[a-z0-9-]{6,64}\.(pdf|jpg|jpeg|png|xml)$/;
 
 function servirSite(req: IncomingMessage, res: ServerResponse) {
   const chemin = decodeURIComponent((req.url ?? '/').split('?')[0]);
@@ -129,6 +139,28 @@ const serveur = createServer(async (req, res) => {
       etat = r.etat;
       if (r.modifie) enregistrer();
       return json(res, 200, { rev: r.rev, recues: r.recues });
+    }
+    const piece = url.match(/^\/api\/pieces\/([^/]+)$/);
+    if (piece) {
+      if (!autorise(req)) return json(res, 401, { erreur: "Code d'accès incorrect." });
+      const id = decodeURIComponent(piece[1]);
+      if (!ID_PIECE.test(id)) return json(res, 400, { erreur: 'identifiant de pièce invalide' });
+      const fichier = join(PIECES, id);
+      if (req.method === 'POST') {
+        // Corps : { base64 } (le plus simple à envoyer depuis le téléphone).
+        const { base64 } = JSON.parse(await lireCorps(req)) as { base64?: string };
+        if (!base64) return json(res, 400, { erreur: 'pièce vide' });
+        const tmp = `${fichier}.tmp`;
+        writeFileSync(tmp, Buffer.from(base64, 'base64'));
+        renameSync(tmp, fichier);
+        return json(res, 200, { ok: true });
+      }
+      if (req.method === 'GET') {
+        if (!existsSync(fichier)) return json(res, 404, { erreur: 'pièce absente du NAS' });
+        res.writeHead(200, { 'content-type': TYPES[extname(fichier)] ?? 'application/octet-stream', 'cache-control': 'private, max-age=86400' });
+        return res.end(readFileSync(fichier));
+      }
+      return json(res, 405, { erreur: 'méthode non permise' });
     }
     if (url.startsWith('/api/')) return json(res, 404, { erreur: 'inconnu' });
     servirSite(req, res);

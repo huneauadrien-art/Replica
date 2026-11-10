@@ -41,3 +41,16 @@ export async function appelServeur<T>(s: Serveur, chemin: string, corps?: unknow
     throw new Error("Cette adresse ne répond pas comme le serveur Registre Vigne.");
   }
 }
+
+/** Télécharge une pièce jointe (PDF ou photo de facture) depuis le NAS. */
+export async function telechargerPiece(s: Serveur, id: string): Promise<Uint8Array> {
+  let reponse: Response;
+  try {
+    reponse = await fetch(`${s.url}/api/pieces/${encodeURIComponent(id)}`, { headers: { authorization: `Bearer ${s.code}` } });
+  } catch {
+    throw new Error('NAS injoignable : la pièce sera visible au retour du réseau.');
+  }
+  if (reponse.status === 404) throw new Error("Cette pièce n'est pas encore arrivée sur le NAS.");
+  if (!reponse.ok) throw new Error(`Le NAS a répondu une erreur (${reponse.status}).`);
+  return new Uint8Array(await reponse.arrayBuffer());
+}

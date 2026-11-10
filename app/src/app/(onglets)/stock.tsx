@@ -14,6 +14,17 @@ export default function Stock() {
 
   return (
     <Ecran>
+      <Carte onPress={() => router.push('/factures')}>
+        <Ligne>
+          <View style={{ flex: 1 }}>
+            <Texte gras>Factures d'achat</Texte>
+            <Texte doux>
+              {d.factures.length === 0 ? 'Ajoutez vos factures : le stock et les prix se mettent à jour.' : `${d.factures.length} facture(s) · coûts · export comptable`}
+            </Texte>
+          </View>
+          <Texte gras>›</Texte>
+        </Ligne>
+      </Carte>
       <Bouton titre="＋ Nouveau produit" onPress={() => router.push('/produit/nouveau')} />
       <Ligne>
         <Puce titre="Utilisés" actif={!archives} onPress={() => setArchives(false)} />

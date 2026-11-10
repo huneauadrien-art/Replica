@@ -16,6 +16,12 @@ viticole, avec le suivi du stock de produits.
   AMM manquant. Calcul de la date de récolte possible (DAR) et de la rentrée (DRE).
 - **Registre** : une ligne par parcelle et par produit, par campagne, en PDF ou en CSV
   (Excel). Sauvegarde complète en JSON.
+- **Factures d'achat** (onglet Stock) : le PDF reçu au format Factur-X est lu tout seul
+  (fournisseur, numéro, lignes, prix, TVA) ; chaque ligne est reliée à un produit et entre en
+  stock avec son prix, et l'app retient les libellés du fournisseur pour la fois suivante.
+  Photo ou saisie à la main pour les autres. Pièces gardées sur le NAS. Coûts des
+  traitements par parcelle au prix moyen d'achat. Export zip (tableau + pièces) pour
+  l'expert-comptable.
 
 Les données restent sur le téléphone, et se synchronisent avec le serveur du NAS
 quand il est configuré (voir [`nas/README.md`](../nas/README.md)) : chaque appareil

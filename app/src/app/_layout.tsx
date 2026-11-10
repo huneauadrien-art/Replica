@@ -22,6 +22,10 @@ export default function Racine() {
         <Stack.Screen name="produit/[id]" options={{ title: 'Produit' }} />
         <Stack.Screen name="traitement/[id]" options={{ title: 'Traitement' }} />
         <Stack.Screen name="reglages" options={{ title: 'Serveur NAS' }} />
+        <Stack.Screen name="factures/index" options={{ title: "Factures d'achat" }} />
+        <Stack.Screen name="factures/[id]" options={{ title: 'Facture' }} />
+        <Stack.Screen name="factures/couts" options={{ title: 'Coûts par parcelle' }} />
+        <Stack.Screen name="factures/export" options={{ title: 'Export comptable' }} />
       </Stack>
     </StoreProvider>
   );

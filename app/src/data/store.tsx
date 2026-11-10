@@ -6,7 +6,9 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useRef, use
 import { AppState } from 'react-native';
 import { appliquerRecues, cle, COLLECTIONS, difference, toutEnvoyer, type Changements, type Collection, type Fiche } from '../core/sync';
 import { DONNEES_VIDES, type Donnees } from '../core/types';
-import { appelServeur, type Serveur } from './serveur';
+import { versBase64 } from '../core/base64';
+import { garderLocal, lireLocal } from './pieces';
+import { appelServeur, telechargerPiece, type Serveur } from './serveur';
 
 const CLE = 'registre-vigne/donnees';
 const CLE_SYNC = 'registre-vigne/sync';
@@ -18,6 +20,8 @@ type EtatSync = {
   rev: number;
   /** Fiches modifiées ici et pas encore envoyées, par clé « collection/id ». */
   enAttente: Record<string, Fiche>;
+  /** Pièces jointes (factures) gardées sur ce téléphone et pas encore envoyées au NAS. */
+  piecesEnAttente?: string[];
   dernier?: { quand: number; ok: boolean; message?: string };
 };
 
@@ -30,6 +34,7 @@ export type Synchro = {
   /** 'envoyer' : les données de ce téléphone partent au NAS. 'recevoir' : ce téléphone prend celles du NAS. */
   connecter: (s: Serveur, mode: 'envoyer' | 'recevoir') => Promise<void>;
   deconnecter: () => void;
+  piecesEnAttente: number;
 };
 
 type Store = {
@@ -38,6 +43,9 @@ type Store = {
   /** Applique une modification et l'enregistre (puis l'envoie au NAS). */
   modifier: (f: (d: Donnees) => Donnees) => void;
   synchro: Synchro;
+  ajouterPiece: (id: string, octets: Uint8Array) => Promise<void>;
+  envoyerPiece: (id: string) => void;
+  lirePiece: (id: string) => Promise<Uint8Array>;
 };
 
 const Contexte = createContext<Store | null>(null);
@@ -95,6 +103,12 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       for (const [k, f] of Object.entries(envoyees)) if (restant[k] === f) delete restant[k];
       ecrireD(appliquerRecues(refD.current, r.recues, new Map(Object.entries(restant))));
       ecrireS({ ...refS.current, rev: r.rev, enAttente: restant, dernier: { quand: Date.now(), ok: true } });
+      // Puis les pièces jointes, une par une : une coupure n'en perd aucune.
+      for (const id of [...(refS.current.piecesEnAttente ?? [])]) {
+        const octets = await lireLocal(id);
+        if (octets) await appelServeur(s.serveur, `/api/pieces/${id}`, { base64: versBase64(octets) });
+        ecrireS({ ...refS.current, piecesEnAttente: (refS.current.piecesEnAttente ?? []).filter((x) => x !== id) });
+      }
     } catch (e) {
       ecrireS({ ...refS.current, dernier: { quand: Date.now(), ok: false, message: (e as Error).message } });
     } finally {
@@ -136,6 +150,31 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     [ecrireD, ecrireS, synchroniser],
   );
 
+  /** Garde une pièce jointe sur ce téléphone (elle ne part pas encore au NAS). */
+  const ajouterPiece = useCallback(async (id: string, octets: Uint8Array) => {
+    await garderLocal(id, octets);
+  }, []);
+
+  /** Met une pièce gardée ici dans la file d'envoi vers le NAS. */
+  const envoyerPiece = useCallback(
+    (id: string) => {
+      ecrireS({ ...refS.current, piecesEnAttente: [...(refS.current.piecesEnAttente ?? []).filter((x) => x !== id), id] });
+      plusTard();
+    },
+    [ecrireS, plusTard],
+  );
+
+  /** La pièce jointe, depuis ce téléphone ou, à défaut, depuis le NAS (puis gardée ici). */
+  const lirePiece = useCallback(async (id: string): Promise<Uint8Array> => {
+    const local = await lireLocal(id);
+    if (local) return local;
+    const serveur = refS.current.serveur;
+    if (!serveur) throw new Error("Cette pièce n'est pas sur ce téléphone, et aucun NAS n'est relié.");
+    const octets = await telechargerPiece(serveur, id);
+    await garderLocal(id, octets).catch(() => {});
+    return octets;
+  }, []);
+
   const deconnecter = useCallback(() => ecrireS({ rev: 0, enAttente: {} }), [ecrireS]);
 
   // Synchronisation au démarrage, au retour dans l'app et toutes les minutes.
@@ -159,10 +198,14 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       synchroniser,
       connecter,
       deconnecter,
+      piecesEnAttente: sync.piecesEnAttente?.length ?? 0,
     }),
     [sync, enCours, synchroniser, connecter, deconnecter],
   );
-  const valeur = useMemo(() => ({ donnees, pret, modifier, synchro }), [donnees, pret, modifier, synchro]);
+  const valeur = useMemo(
+    () => ({ donnees, pret, modifier, synchro, ajouterPiece, envoyerPiece, lirePiece }),
+    [donnees, pret, modifier, synchro, ajouterPiece, envoyerPiece, lirePiece],
+  );
   return <Contexte.Provider value={valeur}>{children}</Contexte.Provider>;
 }
 

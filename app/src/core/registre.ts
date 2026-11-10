@@ -24,6 +24,7 @@ export type LigneStock = {
   solde: number;
   traitementId?: string;
   mouvementId?: string;
+  factureId?: string;
 };
 
 /** Historique du stock d'un produit : achats, corrections et sorties par traitement, avec le solde. */
@@ -39,6 +40,7 @@ export function historiqueStock(d: Donnees, produitId: string): LigneStock[] {
             : `Correction${m.note ? ` – ${m.note}` : ''}`,
         quantite: m.quantite,
         mouvementId: m.id,
+        factureId: m.factureId,
       });
   for (const t of d.traitements) {
     const q = quantitesUtilisees(t).get(produitId);

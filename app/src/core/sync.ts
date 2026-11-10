@@ -10,7 +10,7 @@
 
 import type { Donnees } from './types';
 
-export const COLLECTIONS = ['parcelles', 'produits', 'mouvements', 'traitements'] as const;
+export const COLLECTIONS = ['parcelles', 'produits', 'mouvements', 'traitements', 'factures'] as const;
 export type Collection = (typeof COLLECTIONS)[number];
 
 export type Fiche = { id: string; maj?: number; supprime?: boolean; [champ: string]: unknown };
@@ -85,7 +85,7 @@ export type EtatServeur = {
 
 export const etatServeurVide = (): EtatServeur => ({
   rev: 0,
-  fiches: { parcelles: {}, produits: {}, mouvements: {}, traitements: {} },
+  fiches: { parcelles: {}, produits: {}, mouvements: {}, traitements: {}, factures: {} },
 });
 
 /**

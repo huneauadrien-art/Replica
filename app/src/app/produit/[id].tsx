@@ -107,6 +107,7 @@ function Stock({ produit }: { produit: Produit }) {
   const [date, setDate] = useState(aujourdhui());
   const [fournisseur, setFournisseur] = useState('');
   const [lot, setLot] = useState('');
+  const [prix, setPrix] = useState('');
   const [note, setNote] = useState('');
 
   const stock = stockActuel(d, produit.id);
@@ -123,6 +124,7 @@ function Stock({ produit }: { produit: Produit }) {
       type,
       // Une correction donne le stock compté : on enregistre l'écart.
       quantite: type === 'achat' ? q : q - stock,
+      prixUnitaireHT: type === 'achat' ? lireNombre(prix) : undefined,
       fournisseur: fournisseur.trim() || undefined,
       lot: lot.trim() || undefined,
       note: type === 'ajustement' ? note.trim() || 'Inventaire' : undefined,
@@ -132,6 +134,7 @@ function Stock({ produit }: { produit: Produit }) {
     setQuantite('');
     setFournisseur('');
     setLot('');
+    setPrix('');
     setNote('');
   };
 
@@ -172,6 +175,7 @@ function Stock({ produit }: { produit: Produit }) {
             <>
               <Champ label="Fournisseur" value={fournisseur} onChangeText={setFournisseur} />
               <Champ label="N° de lot" value={lot} onChangeText={setLot} />
+              <ChampNombre label={`Prix HT (€ par ${produit.unite})`} valeur={prix} onChange={setPrix} aide="Facultatif : sert au calcul des coûts par parcelle." />
             </>
           ) : (
             <Champ label="Note" value={note} onChangeText={setNote} placeholder="Inventaire de fin de campagne" />
@@ -191,7 +195,15 @@ function Stock({ produit }: { produit: Produit }) {
       {historique.map((l, i) => (
         <Carte
           key={i}
-          onPress={l.traitementId ? () => router.push(`/traitement/${l.traitementId}`) : l.mouvementId ? () => supprimerMouvement(l.mouvementId!) : undefined}
+          onPress={
+            l.traitementId
+              ? () => router.push(`/traitement/${l.traitementId}`)
+              : l.factureId
+                ? () => router.push(`/factures/${l.factureId}`)
+                : l.mouvementId
+                  ? () => supprimerMouvement(l.mouvementId!)
+                  : undefined
+          }
         >
           <Ligne>
             <View style={{ flex: 1 }}>

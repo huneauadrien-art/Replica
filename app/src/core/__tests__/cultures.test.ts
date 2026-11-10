@@ -30,6 +30,7 @@ describe('cultures', () => {
   it('met la vraie culture dans le registre', () => {
     const d: Donnees = {
       version: 1,
+  factures: [],
       parcelles: [{ id: 'b', nom: 'Le Champ', surfaceHa: 3, codeCulture: 'BTH', contour: [] }],
       produits: [{ id: 'x', nom: 'Herbicide', unite: 'L' }],
       mouvements: [],

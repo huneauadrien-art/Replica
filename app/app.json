@@ -34,6 +34,14 @@
             "usesCleartextTraffic": true
           }
         }
+      ],
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Pour joindre la photo d’une facture d’achat.",
+          "cameraPermission": "Pour photographier une facture d’achat.",
+          "microphonePermission": false
+        }
       ]
     ],
     "scheme": "registrevigne"

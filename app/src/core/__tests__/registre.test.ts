@@ -14,6 +14,7 @@ import type { Donnees, Traitement } from '../types';
 
 const donnees = (): Donnees => ({
   version: 1,
+  factures: [],
   parcelles: [
     { id: 'p1', nom: 'Les Graves', surfaceHa: 2, contour: [] },
     { id: 'p2', nom: 'Le Haut', surfaceHa: 1.5, contour: [] },
