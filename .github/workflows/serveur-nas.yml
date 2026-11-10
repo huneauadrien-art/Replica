@@ -37,6 +37,7 @@ jobs:
           tags: |
             ${{ steps.nom.outputs.image }}:latest
             ${{ steps.nom.outputs.image }}:${{ github.sha }}
+          build-args: VERSION=${{ github.sha }}
           labels: org.opencontainers.image.source=https://github.com/${{ github.repository }}
           cache-from: type=gha
           cache-to: type=gha,mode=max

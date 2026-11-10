@@ -1,16 +1,18 @@
 # Serveur Registre Vigne pour le NAS : synchronisation des téléphones + version web.
 FROM node:22-bookworm-slim AS construction
+ARG VERSION=dev
 WORKDIR /src
 COPY app/package.json app/package-lock.json ./
 RUN npm ci --no-audit --no-fund
 COPY app/ ./
 RUN npx tsc --noEmit \
  && npx vitest run \
- && EXPO_OFFLINE=1 npx expo export --platform web --output-dir /out/site \
+ && EXPO_OFFLINE=1 EXPO_PUBLIC_VERSION=$VERSION npx expo export --platform web --output-dir /out/site \
  && npx tsc -p serveur/tsconfig.json --outDir /out
 
 FROM node:22-bookworm-slim
-ENV NODE_ENV=production PORT=8080 DONNEES=/donnees
+ARG VERSION=dev
+ENV NODE_ENV=production PORT=8080 DONNEES=/donnees VERSION=$VERSION
 WORKDIR /app
 COPY --from=construction /out/ ./
 VOLUME /donnees

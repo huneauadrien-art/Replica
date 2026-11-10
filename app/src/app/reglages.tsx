@@ -1,11 +1,12 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { ActivityIndicator, View } from 'react-native';
 import type { Collection } from '../core/sync';
 import { adresseProposee, appelServeur, normaliserUrl } from '../data/serveur';
 import { useStore } from '../data/store';
+import { VERSION_APP } from '../version';
 import { Badge, Bouton, Carte, Champ, confirmer, Ecran, Ligne, ListeAlertes, SousTitre, Texte } from '../ui/kit';
 
-type EtatNas = { fiches: Record<Collection, number> };
+type EtatNas = { fiches: Record<Collection, number>; version?: string };
 
 const heure = (ms: number) =>
   new Date(ms).toLocaleString('fr-FR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' });
@@ -17,6 +18,14 @@ export default function Reglages() {
   const [nas, setNas] = useState<EtatNas | null>(null);
   const [erreur, setErreur] = useState<string | null>(null);
   const [attente, setAttente] = useState(false);
+
+  const [versionNas, setVersionNas] = useState<string | null>(null);
+  useEffect(() => {
+    if (!synchro.serveur) return;
+    appelServeur<EtatNas>(synchro.serveur, '/api/etat')
+      .then((e) => setVersionNas(e.version ?? 'ancienne'))
+      .catch(() => setVersionNas(null));
+  }, [synchro.serveur, synchro.dernier?.quand]);
 
   const serveur = { url: normaliserUrl(url), code: code.trim() };
   const localVide = d.parcelles.length + d.produits.length + d.traitements.length + d.mouvements.length === 0;
@@ -64,9 +73,25 @@ export default function Reglages() {
           </Ligne>
           {dernier && <Texte doux>Dernière tentative : {heure(dernier.quand)}</Texte>}
           <Texte doux>
+            Version de l'app : {VERSION_APP} · du NAS : {versionNas ?? '…'}
+          </Texte>
+          <Texte doux>
             {synchro.enAttente === 0 ? 'Tout est envoyé.' : `${synchro.enAttente} modification(s) en attente d'envoi.`}
           </Texte>
         </Carte>
+        {versionNas && versionNas !== VERSION_APP && VERSION_APP !== 'dev' && (
+          <ListeAlertes
+            alertes={[
+              {
+                niveau: 'attention',
+                message:
+                  versionNas === 'ancienne'
+                    ? 'Le NAS fait tourner une ancienne version : mettez-le à jour (supprimer l’image dans Docker, puis redémarrer le projet).'
+                    : "L'app et le NAS n'ont pas la même version : mettez à jour celui qui est en retard.",
+              },
+            ]}
+          />
+        )}
         {dernier?.ok === false && dernier.message && (
           <ListeAlertes alertes={[{ niveau: 'attention', message: `${dernier.message} Vos saisies restent sur le téléphone et partiront au retour du réseau.` }]} />
         )}

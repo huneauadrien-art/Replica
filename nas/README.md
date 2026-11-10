@@ -40,11 +40,16 @@ Ensuite chaque saisie part au NAS dans les secondes qui suivent, ou au retour du
 
 ## Mettre à jour
 
-Dans **Docker** › **Projet** › `registre-vigne` : **Arrêter**, puis **Démarrer**.
-Grâce à `pull_policy: always`, le NAS télécharge la dernière version à chaque démarrage.
-Si ce n'est pas le cas : projet arrêté, supprimez l'image `ghcr.io/huneauadrien-art/registre-vigne`
-dans **Docker** › **Image**, puis redémarrez le projet. Les données du dossier `donnees`
-sont conservées.
+« Arrêter » puis « Démarrer » relance le même conteneur, avec l'image déjà téléchargée :
+ce n'est **pas** une mise à jour. Pour mettre à jour :
+
+1. **Docker** › **Projet** › `registre-vigne` : **Arrêter**.
+2. **Docker** › **Image** : supprimer `ghcr.io/huneauadrien-art/registre-vigne`
+   (au besoin, supprimer d'abord le conteneur `registre-vigne` dans **Conteneur**).
+3. **Projet** › `registre-vigne` : **Démarrer** / **Déployer** : le NAS télécharge la dernière image.
+
+Les données du dossier `donnees` sont conservées. Pour vérifier : dans l'app, écran
+**Serveur NAS**, la version du NAS doit être celle de l'app.
 
 ## Si le téléchargement de l'image est refusé
 

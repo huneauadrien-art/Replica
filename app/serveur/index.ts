@@ -15,6 +15,8 @@ import { compter, etatServeurVide, synchroniserServeur, type Changements, type E
 
 const CODE = process.env.CODE ?? '';
 const PORT = Number(process.env.PORT ?? 8080);
+/** Commit d'où vient l'image (donné au build), affiché dans l'app pour vérifier les mises à jour. */
+const VERSION = (process.env.VERSION || 'dev').slice(0, 7);
 const DONNEES = resolve(process.env.DONNEES ?? '/donnees');
 const SITE = resolve(process.env.SITE ?? join(__dirname, '..', 'site'));
 const FICHIER = join(DONNEES, 'registre.json');
@@ -130,7 +132,7 @@ const serveur = createServer(async (req, res) => {
   try {
     if (url === '/api/etat' && req.method === 'GET') {
       if (!autorise(req)) return json(res, 401, { erreur: "Code d'accès incorrect." });
-      return json(res, 200, { ok: true, rev: etat.rev, fiches: compter(etat) });
+      return json(res, 200, { ok: true, version: VERSION, rev: etat.rev, fiches: compter(etat) });
     }
     if (url === '/api/sync' && req.method === 'POST') {
       if (!autorise(req)) return json(res, 401, { erreur: "Code d'accès incorrect." });
@@ -170,4 +172,4 @@ const serveur = createServer(async (req, res) => {
   }
 });
 
-serveur.listen(PORT, () => console.log(`Registre Vigne : http://0.0.0.0:${PORT} — données dans ${DONNEES}`));
+serveur.listen(PORT, () => console.log(`Registre Vigne ${VERSION} : http://0.0.0.0:${PORT} — données dans ${DONNEES}`));

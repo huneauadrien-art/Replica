@@ -20,6 +20,9 @@ jobs:
     defaults:
       run:
         working-directory: app
+    env:
+      # Inscrit le commit dans l'app (écran Serveur NAS).
+      EXPO_PUBLIC_VERSION: ${{ github.sha }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
