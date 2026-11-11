@@ -1,40 +1,40 @@
 feature,area,priority,original,clone,notes
-Saisir une dépense (montant catégorie date note),saisie,must,yes,no,S04 ; objectif 3 touches
-4 catégories Survie Optionnel Culture Extra,saisie,must,yes,no,méthode Kakeibo
-Bouton + accessible partout,saisie,must,yes,no,S04
-Annuler juste après l'ajout,saisie,should,no,no,toast S04 ; ajout du clone
-Saisir un revenu,saisie,must,yes,no,S05
-Modifier ou supprimer une ligne,saisie,must,yes,no,S07
-Préparer le mois : revenus charges fixes épargne visée,mois,must,yes,no,S03 ; épargne décidée d'abord
-Reste à dépenser affiché en grand,mois,must,yes,no,S02
-Budget par catégorie avec jauges,mois,should,yes,no,S02
-Reprendre le mois précédent en une touche,mois,should,partial,no,S03 ; revenu récurrent dans source 10
-Lignes récurrentes (salaire loyer abonnements),mois,should,yes,no,LigneRecurrente
-Jour de début du mois réglable,mois,could,unknown,no,utile si salaire le 25
-Bilan de fin de mois avec les 4 questions,bilan,must,yes,no,S08
-Réponses écrites (ce qui a marché / trop dépensé / à changer),bilan,must,yes,no,S08
-Comparaison avec le mois précédent,bilan,should,unknown,no,S08
-Point de la semaine,bilan,could,yes,no,S09
-Rappel du soir pour noter les dépenses,bilan,should,unknown,no,notification
-Rappel de bilan en fin de mois,bilan,should,unknown,no,notification
-Objectifs d'épargne avec avancement,epargne,should,yes,no,S10
-Versement vers un objectif,epargne,should,yes,no,S05
-Liste des dépenses filtrée par catégorie et recherche,historique,must,yes,no,S06
-Historique des mois (épargné vs visé),historique,should,yes,no,S11
-Graphique par mois et par catégorie,historique,could,yes,no,S11
-Catégories et sous-catégories modifiables,reglages,should,partial,no,S12 ; plainte fréquente
-Devise,reglages,should,yes,no,une seule devise au départ
-Fonctionne sans réseau,technique,must,yes,no,
-Synchronisation entre téléphones du foyer (NAS),technique,should,no,no,ajout du clone ; reprendre sync.ts de Registre Vigne
-Sauvegarde et restauration,technique,must,yes,no,S14
-Export CSV pour Excel par période,technique,should,yes,no,S14 ; UTF-8 BOM
+Saisir une dépense (montant catégorie date note),saisie,must,yes,yes,S04 ; objectif 3 touches
+4 catégories Survie Optionnel Culture Extra,saisie,must,yes,yes,méthode Kakeibo
+Bouton + accessible partout,saisie,must,yes,yes,S04
+Annuler juste après l'ajout,saisie,should,no,yes,toast S04 ; ajout du clone
+Saisir un revenu,saisie,must,yes,yes,S05
+Modifier ou supprimer une ligne,saisie,must,yes,yes,S07
+Préparer le mois : revenus charges fixes épargne visée,mois,must,yes,yes,S03 ; épargne décidée d'abord
+Reste à dépenser affiché en grand,mois,must,yes,yes,S02
+Budget par catégorie avec jauges,mois,should,yes,yes,S02
+Reprendre le mois précédent en une touche,mois,should,partial,yes,S03 ; revenu récurrent dans source 10
+Lignes récurrentes (salaire loyer abonnements),mois,should,yes,yes,LigneRecurrente
+Jour de début du mois réglable,mois,could,unknown,yes,utile si salaire le 25
+Bilan de fin de mois avec les 4 questions,bilan,must,yes,yes,S08
+Réponses écrites (ce qui a marché / trop dépensé / à changer),bilan,must,yes,yes,S08
+Comparaison avec le mois précédent,bilan,should,unknown,yes,S08
+Point de la semaine,bilan,could,yes,partial,S09 ; reste par semaine affiché sur S02 ; pas de note de la semaine
+Rappel du soir pour noter les dépenses,bilan,should,unknown,yes,notification locale (appli installée ; pas sur le web)
+Rappel de bilan en fin de mois,bilan,should,unknown,yes,notification locale le dernier jour à 20 h + bandeau « bilan oublié »
+Objectifs d'épargne avec avancement,epargne,should,yes,yes,S10
+Versement vers un objectif,epargne,should,yes,yes,S05
+Liste des dépenses filtrée par catégorie et recherche,historique,must,yes,yes,S06
+Historique des mois (épargné vs visé),historique,should,yes,yes,S11
+Graphique par mois et par catégorie,historique,could,yes,yes,S11
+Catégories et sous-catégories modifiables,reglages,should,partial,yes,S12 ; plainte fréquente
+Devise,reglages,should,yes,partial,une seule devise au départ ; euro seulement
+Fonctionne sans réseau,technique,must,yes,yes,
+Synchronisation entre téléphones du foyer (NAS),technique,should,no,yes,ajout du clone ; reprendre sync.ts de Registre Vigne
+Sauvegarde et restauration,technique,must,yes,yes,S14
+Export CSV pour Excel par période,technique,should,yes,yes,S14 ; UTF-8 BOM
 Verrouillage par code ou empreinte,technique,could,unknown,no,S13
 Widget écran d'accueil,technique,could,yes,no,S15 ; code natif
-Écrans d'accueil qui expliquent la méthode,accueil,could,yes,no,S01
+Écrans d'accueil qui expliquent la méthode,accueil,could,yes,partial,S01 ; explication dans l'état vide de S02
 Plusieurs comptes (espèces banque carte),comptes,could,yes,no,source 14
 Multi-devises,comptes,could,yes,no,source 14
 Scan des tickets de caisse,saisie,could,yes,no,source 14 ; peu fiable
-Budget hebdo calculé par IA,mois,could,yes,no,source 9 ; division simple suffit
-Lien bancaire automatique,banque,skip,no,no,agrément DSP2 et contraire à la méthode
-Abonnement Pro,vente,skip,yes,no,usage perso : tout inclus
-Noms textes et icônes des applis Kakeibo,marque,skip,yes,no,refaire ; nom à choisir avec replica-brand
+Budget hebdo calculé par IA,mois,could,yes,partial,source 9 ; division simple suffit ; division simple du reste par les semaines restantes
+Lien bancaire automatique,banque,skip,unknown,skip,agrément DSP2 et contraire à la méthode
+Abonnement Pro,vente,skip,yes,skip,usage perso : tout inclus
+Noms textes et icônes des applis Kakeibo,marque,skip,yes,skip,refaire ; nom à choisir avec replica-brand

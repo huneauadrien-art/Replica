@@ -1,11 +1,12 @@
 // S13 Réglages et S14 export / sauvegarde.
 
 import { router } from 'expo-router';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { exporterCsv } from '../core/csv';
 import { bornesMois, jourLocal, libelleMois, moisDe, reglages, REGLAGES_DEFAUT } from '../core/mois';
 import { ecrireSauvegarde, fusionner, lireSauvegarde } from '../core/sauvegarde';
 import { choisirFichier, partagerTexte } from '../data/fichiers';
+import { autoriser, lireRappels, planifier, RAPPELS_DEFAUT, rappelsDisponibles, type ReglagesRappels } from '../data/rappels';
 import { remplacer, useStore } from '../data/store';
 import { VERSION_APP } from '../version';
 import { Alerte, Bouton, Carte, confirmer, Ecran, informer, Ligne, Puce, SousTitre, Texte } from '../ui/kit';
@@ -22,6 +23,18 @@ export default function Reglages() {
   const r = reglages(d);
   const [periode, setPeriode] = useState<(typeof PERIODES)[number]['cle']>('mois');
   const courant = moisDe(jourLocal(), r.jourDebutMois);
+  const [rappels, setRappels] = useState<ReglagesRappels>(RAPPELS_DEFAUT);
+  useEffect(() => {
+    void lireRappels().then(setRappels);
+  }, []);
+  const changerRappels = async (nouveaux: ReglagesRappels) => {
+    if ((nouveaux.soir || nouveaux.bilan) && !(await autoriser())) {
+      informer('Rappels refusés', 'Le téléphone n’autorise pas les notifications pour cette appli. Vous pouvez le changer dans les réglages du téléphone.');
+      return;
+    }
+    setRappels(nouveaux);
+    await planifier(nouveaux, bornesMois(courant, r.jourDebutMois).au);
+  };
 
   const bornes = () => {
     if (periode === 'tout') return { du: '0000-01-01', au: '9999-12-31' };
@@ -71,6 +84,30 @@ export default function Reglages() {
           {bornesMois(courant, r.jourDebutMois).au.split('-').reverse().join('/')}.
         </Texte>
       </Carte>
+
+      <SousTitre>Rappels</SousTitre>
+      {rappelsDisponibles ? (
+        <Carte>
+          <Ligne entre>
+            <Texte gras>Le soir, noter les dépenses</Texte>
+            <Puce titre={rappels.soir ? 'Oui' : 'Non'} actif={rappels.soir} onPress={() => void changerRappels({ ...rappels, soir: !rappels.soir })} />
+          </Ligne>
+          {rappels.soir ? (
+            <Ligne>
+              {[19, 20, 21, 22].map((h) => (
+                <Puce key={h} titre={`${h} h`} actif={rappels.heure === h} onPress={() => void changerRappels({ ...rappels, heure: h })} />
+              ))}
+            </Ligne>
+          ) : null}
+          <Ligne entre>
+            <Texte gras>Fin du mois, faire le bilan</Texte>
+            <Puce titre={rappels.bilan ? 'Oui' : 'Non'} actif={rappels.bilan} onPress={() => void changerRappels({ ...rappels, bilan: !rappels.bilan })} />
+          </Ligne>
+          <Texte doux petit>Les rappels sont propres à ce téléphone.</Texte>
+        </Carte>
+      ) : (
+        <Texte doux petit>Les rappels marchent dans l’appli installée sur le téléphone, pas dans le navigateur.</Texte>
+      )}
 
       <SousTitre>Partage entre téléphones</SousTitre>
       <Bouton titre={synchro.serveur ? 'Serveur NAS : connecté' : 'Relier au serveur NAS'} variante="secondaire" onPress={() => router.push('/nas')} />

@@ -30,7 +30,7 @@ function Graphique({ lignes }: { lignes: LigneHistorique[] }) {
             <G key={x.cle}>
               <Rect x={cx - largeur - 2} y={y(x.epargneVisee)} width={largeur} height={h - 20 - y(x.epargneVisee)} rx={4} fill={c.accentSoft} />
               <Rect x={cx + 2} y={y(x.epargne)} width={largeur} height={h - 20 - y(x.epargne)} rx={4} fill={x.epargne >= x.epargneVisee ? c.success : c.danger} />
-              <SvgText x={cx} y={h - 4} fontSize={12} fill={c.textMuted} textAnchor="middle">
+              <SvgText x={cx} y={h - 4} fontSize={12} fontFamily="system-ui, -apple-system, Roboto, sans-serif" fill={c.textMuted} textAnchor="middle">
                 {court(x.cle)}
               </SvgText>
             </G>
@@ -53,20 +53,24 @@ function Graphique({ lignes }: { lignes: LigneHistorique[] }) {
 
 export default function Historique() {
   const { donnees: d } = useStore();
-  const { choisir } = useMoisChoisi();
+  const { choisir, courant } = useMoisChoisi();
   const lignes = historique(d);
-  const total = lignes.reduce((s, x) => s + x.epargne, 0);
+  // Le mois en cours n'est pas fini : son « épargné » n'a pas encore de sens.
+  const finis = lignes.filter((x) => x.cle < courant || x.clos);
+  const total = finis.reduce((s, x) => s + x.epargne, 0);
   return (
     <Ecran>
-      {lignes.length < 2 ? (
+      {finis.length < 1 ? (
         <Carte>
-          <Vide titre="L’historique se remplit mois après mois." texte="Il apparaît après votre premier mois complet." />
+          <Vide titre="L’historique se remplit mois après mois." texte="Le graphique apparaît après votre premier mois complet." />
         </Carte>
       ) : (
         <Carte>
           <SousTitre>Épargne des derniers mois</SousTitre>
-          <Graphique lignes={lignes} />
-          <Texte doux>Total épargné sur {lignes.length} mois : {euros(total)}</Texte>
+          <Graphique lignes={finis} />
+          <Texte doux>
+            Total épargné sur {finis.length} mois : {euros(total)}
+          </Texte>
         </Carte>
       )}
       {lignes.map((x) => {
@@ -86,10 +90,14 @@ export default function Historique() {
               <Texte gras>{libelleMois(x.cle)}</Texte>
               {x.clos ? <Badge texte="Clos" /> : <Badge texte="En cours" ton="attention" />}
             </Ligne>
-            <Texte doux>
-              Dépensé {euros(x.depense)} · épargné{' '}
-              <Texte ton={x.epargne >= x.epargneVisee ? 'success' : 'danger'}>{euros(x.epargne)}</Texte> sur {euros(x.epargneVisee)} visés
-            </Texte>
+            {x.cle < courant || x.clos ? (
+              <Texte doux>
+                Dépensé {euros(x.depense)} · épargné{' '}
+                <Texte ton={x.epargne >= x.epargneVisee ? 'success' : 'danger'}>{euros(x.epargne)}</Texte> sur {euros(x.epargneVisee)} visés
+              </Texte>
+            ) : (
+              <Texte doux>Dépensé {euros(x.depense)} pour l’instant · {euros(x.epargneVisee)} à mettre de côté</Texte>
+            )}
             {b?.aChanger ? <Texte petit doux>À changer : {b.aChanger}</Texte> : null}
           </Carte>
         );

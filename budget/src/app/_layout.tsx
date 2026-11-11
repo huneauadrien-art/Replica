@@ -1,15 +1,33 @@
 import { Stack } from 'expo-router';
+import { useEffect } from 'react';
+import { bornesMois, jourLocal, moisDe, reglages } from '../core/mois';
+import { lireRappels, planifier } from '../data/rappels';
 import { StatusBar } from 'expo-status-bar';
-import { StoreProvider } from '../data/store';
+import { StoreProvider, useStore } from '../data/store';
 import { FournisseurToast } from '../ui/kit';
 import { FournisseurMois } from '../ui/moisChoisi';
 import { c } from '../ui/theme';
+
+/** Replanifie les rappels à chaque démarrage (le rappel de bilan suit la fin du mois de budget). */
+function Rappels() {
+  const { donnees, pret } = useStore();
+  const debut = reglages(donnees).jourDebutMois;
+  useEffect(() => {
+    if (!pret) return;
+    const fin = bornesMois(moisDe(jourLocal(), debut), debut).au;
+    lireRappels()
+      .then((r) => planifier(r, fin))
+      .catch(() => {});
+  }, [pret, debut]);
+  return null;
+}
 
 export default function Racine() {
   return (
     <StoreProvider>
       <FournisseurMois>
         <FournisseurToast>
+          <Rappels />
           <StatusBar style="dark" />
           <Stack
             screenOptions={{

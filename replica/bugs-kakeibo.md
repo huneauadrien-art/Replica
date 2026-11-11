@@ -5,6 +5,7 @@
 | B01 | S3 | corrigé |
 | B02 | S4 | corrigé |
 | B03 | S4 | corrigé |
+| B04 | S3 | corrigé |
 
 ## B01 — Lecteur d'écran : état des choix et des jauges non annoncé (S3)
 
@@ -27,6 +28,15 @@
 
 - **Obtenu** : « Code d'accès refusé » et « Vérifiez l'adresse » avec ' au lieu de ’ (le reste de l'appli utilise ’).
 - **Correction** : `data/serveur.ts`.
+
+## B04 — Historique : le mois en cours compté comme « épargné » (S3)
+
+- **Étapes** : un mois en cours avec des revenus prévus, ouvrir Historique.
+- **Attendu** : le mois en cours n'est pas encore une épargne.
+- **Obtenu** : « épargné 1 132,20 € » pour le mois en cours (revenus − charges − dépenses déjà faites), plus grande barre du graphique.
+  Les chiffres des axes du graphique s'affichaient aussi en police avec empattements.
+- **Preuve** : `replica/clone-screens-kakeibo/S11-historique.png` avant correction.
+- **Correction** : graphique et total sur les mois finis seulement ; le mois en cours affiche « dépensé pour l'instant ».
 
 ## À vérifier (pas reproduit)
 
