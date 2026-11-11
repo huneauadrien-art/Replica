@@ -1,0 +1,55 @@
+# Construit l'appli Budget du foyer pour Android (.apk), release « budget-android-latest ».
+name: Budget – Android
+
+on:
+  push:
+    branches: [main, claude/bold-cori-ah1x01]
+    paths: ['budget/**', '.github/workflows/budget-android.yml']
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: budget-android-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  apk:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: budget
+    env:
+      # Inscrit le commit dans l'appli (écran Serveur NAS).
+      EXPO_PUBLIC_VERSION: ${{ github.sha }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: budget/package-lock.json
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+      - run: npm ci
+      - run: npx tsc --noEmit
+      - run: npm test
+      - run: npx expo prebuild --platform android --no-install
+      - name: Construire l'apk
+        working-directory: budget/android
+        run: ./gradlew assembleRelease --no-daemon
+      - name: Publier l'apk
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          cp android/app/build/outputs/apk/release/app-release.apk budget-foyer.apk
+          NOTES="Version du $(date -u +'%Y-%m-%d %H:%M') UTC, commit ${GITHUB_SHA::7}. Sur Android : téléchargez budget-foyer.apk, puis autorisez l'installation depuis le navigateur."
+          if gh release view budget-android-latest >/dev/null 2>&1; then
+            gh release edit budget-android-latest --notes "$NOTES" --target "$GITHUB_SHA"
+            gh release upload budget-android-latest budget-foyer.apk --clobber
+          else
+            gh release create budget-android-latest budget-foyer.apk --prerelease --title "Budget du foyer – Android" --notes "$NOTES" --target "$GITHUB_SHA"
+          fi

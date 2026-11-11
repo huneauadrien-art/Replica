@@ -12,7 +12,7 @@ import { createHash, timingSafeEqual } from 'node:crypto';
 import { copyFileSync, existsSync, mkdirSync, readdirSync, readFileSync, renameSync, statSync, unlinkSync, writeFileSync } from 'node:fs';
 import { createServer, type IncomingMessage, type ServerResponse } from 'node:http';
 import { extname, join, normalize, resolve } from 'node:path';
-import { compter, etatServeurVide, synchroniserServeur, type Changements, type EtatServeur } from '../src/core/sync';
+import { compter, etatServeurVide, nettoyerChangements, synchroniserServeur, type EtatServeur } from '../src/core/sync';
 
 const CODE = process.env.CODE ?? '';
 const PORT = Number(process.env.PORT ?? 8080);
@@ -61,6 +61,26 @@ function sauvegarderDuJour() {
 // --- HTTP -------------------------------------------------------------------
 
 const empreinte = (s: string) => createHash('sha256').update(s).digest();
+// Trop de codes faux depuis une même adresse : on la fait attendre (contre les essais en série).
+const ECHECS_MAX = 10;
+const FENETRE_MS = 10 * 60_000;
+const echecs = new Map<string, { n: number; depuis: number }>();
+function bloque(req: IncomingMessage): boolean {
+  const e = echecs.get(req.socket.remoteAddress ?? '');
+  if (!e) return false;
+  if (Date.now() - e.depuis > FENETRE_MS) {
+    echecs.delete(req.socket.remoteAddress ?? '');
+    return false;
+  }
+  return e.n >= ECHECS_MAX;
+}
+function noterEchec(req: IncomingMessage) {
+  const ip = req.socket.remoteAddress ?? '';
+  const e = echecs.get(ip);
+  if (!e || Date.now() - e.depuis > FENETRE_MS) echecs.set(ip, { n: 1, depuis: Date.now() });
+  else e.n++;
+}
+
 function autorise(req: IncomingMessage): boolean {
   const recu = (req.headers.authorization ?? '').replace(/^Bearer\s+/i, '');
   return timingSafeEqual(empreinte(recu), empreinte(CODE));
@@ -122,14 +142,23 @@ const serveur = createServer(async (req, res) => {
 
   const url = (req.url ?? '/').split('?')[0];
   try {
+    if (url.startsWith('/api/') && bloque(req)) return json(res, 429, { erreur: 'Trop de codes incorrects : réessayez dans 10 minutes.' });
+    if (url.startsWith('/api/') && !autorise(req)) {
+      noterEchec(req);
+      return json(res, 401, { erreur: "Code d'accès incorrect." });
+    }
     if (url === '/api/etat' && req.method === 'GET') {
-      if (!autorise(req)) return json(res, 401, { erreur: "Code d'accès incorrect." });
       return json(res, 200, { ok: true, version: VERSION, rev: etat.rev, fiches: compter(etat) });
     }
     if (url === '/api/sync' && req.method === 'POST') {
-      if (!autorise(req)) return json(res, 401, { erreur: "Code d'accès incorrect." });
-      const { depuis, changements } = JSON.parse(await lireCorps(req)) as { depuis?: number; changements?: Changements };
-      const r = synchroniserServeur(etat, changements ?? {}, Number(depuis) || 0);
+      let corps: { depuis?: unknown; changements?: unknown };
+      try {
+        corps = JSON.parse(await lireCorps(req));
+      } catch {
+        return json(res, 400, { erreur: 'requête illisible' });
+      }
+      const depuis = Number(corps?.depuis);
+      const r = synchroniserServeur(etat, nettoyerChangements(corps?.changements), Number.isFinite(depuis) && depuis >= 0 ? depuis : 0);
       etat = r.etat;
       if (r.modifie) enregistrer();
       return json(res, 200, { rev: r.rev, recues: r.recues });
@@ -137,8 +166,9 @@ const serveur = createServer(async (req, res) => {
     if (url.startsWith('/api/')) return json(res, 404, { erreur: 'inconnu' });
     servirSite(req, res);
   } catch (e) {
-    console.error(e);
-    json(res, 500, { erreur: (e as Error).message });
+    // Pas de données du foyer dans les journaux : seulement le type d'erreur.
+    console.error(`${req.method} ${url} : ${(e as Error).message}`);
+    json(res, 500, { erreur: 'erreur du serveur' });
   }
 });
 

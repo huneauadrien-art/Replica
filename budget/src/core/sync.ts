@@ -129,3 +129,27 @@ export function compter(etat: EtatServeur): Record<Collection, number> {
   for (const c of COLLECTIONS) r[c] = Object.values(etat.fiches[c]).filter((x) => !x.fiche.supprime).length;
   return r;
 }
+
+/**
+ * Ne garde de ce qu'envoie un appareil que des fiches valides : collection connue,
+ * objet avec un `id` texte court, `maj` numérique. Le reste est ignoré.
+ */
+export function nettoyerChangements(brut: unknown, max = 20_000): Changements {
+  const r: Changements = {};
+  if (!brut || typeof brut !== 'object' || Array.isArray(brut)) return r;
+  let n = 0;
+  for (const c of COLLECTIONS) {
+    const liste = (brut as Record<string, unknown>)[c];
+    if (!Array.isArray(liste)) continue;
+    for (const f of liste) {
+      if (n >= max) return r;
+      if (!f || typeof f !== 'object' || Array.isArray(f)) continue;
+      const fiche = f as Fiche;
+      if (typeof fiche.id !== 'string' || !fiche.id || fiche.id.length > 64) continue;
+      if (fiche.maj !== undefined && typeof fiche.maj !== 'number') continue;
+      (r[c] ??= []).push(fiche);
+      n++;
+    }
+  }
+  return r;
+}

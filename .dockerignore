@@ -5,3 +5,6 @@ app/build-serveur
 app/.expo
 replica
 .claude
+budget/dist
+budget/build-serveur
+budget/.expo

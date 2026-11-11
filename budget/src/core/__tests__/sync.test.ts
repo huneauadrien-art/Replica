@@ -49,3 +49,22 @@ describe('synchronisation du budget', () => {
     expect(Object.keys(etatServeurVide().fiches).sort()).toEqual(['bilans', 'categories', 'mois', 'objectifs', 'recurrentes', 'reglages', 'transactions']);
   });
 });
+
+import { nettoyerChangements } from '../sync';
+
+describe('contrôle de ce que reçoit le serveur', () => {
+  it('ignore collections inconnues, fiches sans id, id trop longs, maj non numérique', () => {
+    const r = nettoyerChangements({
+      parcelles: [{ id: 'x' }],
+      transactions: [{ id: 'ok', maj: 1 }, { id: 3 }, null, 'texte', { id: 'a'.repeat(65) }, { id: 'b', maj: 'hier' }, []],
+      mois: 'pas une liste',
+    });
+    expect(r).toEqual({ transactions: [{ id: 'ok', maj: 1 }] });
+    expect(nettoyerChangements(null)).toEqual({});
+    expect(nettoyerChangements([1, 2])).toEqual({});
+  });
+  it('limite le nombre de fiches par envoi', () => {
+    const r = nettoyerChangements({ transactions: Array.from({ length: 10 }, (_, i) => ({ id: String(i) })) }, 3);
+    expect(r.transactions).toHaveLength(3);
+  });
+});
