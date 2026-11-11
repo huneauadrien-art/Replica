@@ -40,3 +40,6 @@ yarn-error.*
 /ios
 /android
 build-serveur/
+.e2e-donnees/
+test-results/
+playwright-report/

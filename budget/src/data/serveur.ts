@@ -29,11 +29,11 @@ export async function appelServeur<T>(s: Serveur, chemin: string, corps?: unknow
       signal: controle.signal,
     });
   } catch {
-    throw new Error("NAS injoignable. Vérifiez l'adresse et la connexion (réseau, VPN).");
+    throw new Error("NAS injoignable. Vérifiez l’adresse et la connexion (réseau, VPN).");
   } finally {
     clearTimeout(delai);
   }
-  if (reponse.status === 401) throw new Error("Code d'accès refusé par le NAS.");
+  if (reponse.status === 401) throw new Error("Code d’accès refusé par le NAS.");
   if (!reponse.ok) throw new Error(`Le NAS a répondu une erreur (${reponse.status}).`);
   try {
     return (await reponse.json()) as T;

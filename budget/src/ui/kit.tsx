@@ -70,7 +70,7 @@ export function Bouton({
     <Pressable
       accessibilityRole="button"
       accessibilityLabel={etiquette}
-      accessibilityState={{ disabled: !!desactive }}
+      aria-disabled={!!desactive}
       disabled={desactive}
       onPress={onPress}
       style={({ pressed }) => [
@@ -208,6 +208,9 @@ export function Jauge({ groupe, depense, budget }: { groupe: Groupe; depense: Ce
       style={{ gap: 6 }}
       accessible
       accessibilityRole={budget ? 'progressbar' : undefined}
+      aria-valuemin={budget ? 0 : undefined}
+      aria-valuemax={budget ? Math.round(budget / 100) : undefined}
+      aria-valuenow={budget ? Math.round(depense / 100) : undefined}
       accessibilityLabel={`${NOMS_GROUPES[groupe]} : ${euros(depense)}${detail ? ` ${detail}` : ''}`}
     >
       <Ligne entre>
@@ -243,7 +246,7 @@ export function PastilleGroupe({ groupe, choisi, onPress, libelle, aide, grande 
   return (
     <Pressable
       accessibilityRole="radio"
-      accessibilityState={{ checked: choisi }}
+      aria-checked={choisi}
       accessibilityLabel={libelle ?? NOMS_GROUPES[groupe]}
       onPress={onPress}
       style={({ pressed }) => [
@@ -260,7 +263,7 @@ export function PastilleGroupe({ groupe, choisi, onPress, libelle, aide, grande 
 
 export function Puce({ titre, actif, onPress }: { titre: string; actif: boolean; onPress: () => void }) {
   return (
-    <Pressable accessibilityRole="radio" accessibilityState={{ checked: actif }} onPress={onPress} style={[styles.puce, actif && { backgroundColor: c.accent, borderColor: c.accent }]}>
+    <Pressable accessibilityRole="radio" aria-checked={actif} onPress={onPress} style={[styles.puce, actif && { backgroundColor: c.accent, borderColor: c.accent }]}>
       <Text style={[type.sm, { fontWeight: '700', color: actif ? c.onAccent : c.text }]}>{titre}</Text>
     </Pressable>
   );
@@ -272,7 +275,7 @@ export function Bascule<T extends string>({ options, valeur, onChange }: { optio
       {options.map((o) => {
         const actif = o.valeur === valeur;
         return (
-          <Pressable key={o.valeur} accessibilityRole="tab" accessibilityState={{ selected: actif }} onPress={() => onChange(o.valeur)} style={[styles.segment, actif && [{ backgroundColor: c.surface }, ombre.carte]]}>
+          <Pressable key={o.valeur} accessibilityRole="tab" aria-selected={actif} onPress={() => onChange(o.valeur)} style={[styles.segment, actif && [{ backgroundColor: c.surface }, ombre.carte]]}>
             <Text style={[type.sm, { fontWeight: '700', color: actif ? c.accent : c.textMuted }]}>{o.titre}</Text>
           </Pressable>
         );
@@ -294,7 +297,7 @@ export function SelecteurMois({ libelle, precedent, suivant, badge }: { libelle:
       <Pressable
         accessibilityRole="button"
         accessibilityLabel="Mois suivant"
-        accessibilityState={{ disabled: !suivant }}
+        aria-disabled={!suivant}
         disabled={!suivant}
         onPress={suivant}
         style={[styles.fleche, !suivant && { opacity: 0.3 }]}
@@ -328,7 +331,7 @@ export function LigneTransaction({
   return (
     <Pressable
       accessibilityRole="button"
-      accessibilityLabel={`${titre}, ${texteMontant}${sousTitre ? `, ${sousTitre}` : ''}${groupe ? `, ${NOMS_GROUPES[groupe]}` : ''}`}
+      accessibilityLabel={`${titre}${sousTitre ? ` ${sousTitre}` : ''} ${texteMontant}${groupe && sousTitre !== NOMS_GROUPES[groupe] ? `, ${NOMS_GROUPES[groupe]}` : ''}`}
       onPress={onPress}
       style={({ pressed }) => [styles.ligneTx, pressed && { backgroundColor: c.surfaceAlt }]}
     >

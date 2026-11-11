@@ -29,7 +29,7 @@ export default function Mois() {
         <SelecteurMois libelle={libelleMois(cle)} precedent={() => aller(-1)} suivant={cle < courant ? () => aller(1) : undefined} badge={r.mois?.clos ? 'Clos' : undefined} />
 
         {retard.map((m) => (
-          <Carte key={m} onPress={() => router.push({ pathname: '/bilan', params: { mois: m } })} etiquette={`Faire le bilan de ${libelleMois(m)}`}>
+          <Carte key={m} onPress={() => router.push({ pathname: '/bilan', params: { mois: m } })}>
             <Texte gras ton="warning">Le bilan de {libelleMois(m).toLowerCase()} n’est pas fait.</Texte>
             <Texte doux petit>Deux minutes pour regarder le mois passé. Toucher pour le faire.</Texte>
           </Carte>

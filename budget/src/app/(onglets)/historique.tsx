@@ -74,7 +74,6 @@ export default function Historique() {
         return (
           <Carte
             key={x.cle}
-            etiquette={`${libelleMois(x.cle)}, épargné ${euros(x.epargne)}`}
             onPress={() => {
               if (b || x.clos) router.push({ pathname: '/bilan', params: { mois: x.cle } });
               else {
