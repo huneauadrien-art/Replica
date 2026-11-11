@@ -22,8 +22,12 @@ sait lancer des commandes.
 - `Dockerfile` + `nas/` : image et docker-compose pour le NAS UGREEN DXP2800 (UGOS).
 - `.github/workflows/` : apk Android (release `android-latest`), web (GitHub Pages),
   image `ghcr.io/huneauadrien-art/registre-vigne` (publique).
-- `replica/` : cartes de reconnaissance (Process2Wine, Smag Farmer, Kolecto) et
-  tableaux de fonctionnalités.
+- `replica/` : cartes de reconnaissance (Process2Wine, Smag Farmer, Kolecto, Kakeibo) et
+  tableaux de fonctionnalités ; dossiers `*-kakeibo`, `brand.md`, `deploy.md` = Bas de laine.
+- `budget/` : **Bas de laine**, appli séparée pour le budget du foyer (méthode Kakeibo),
+  même recette (Expo, `src/core` testé, serveur Node sans dépendance). NAS : projet Docker
+  `budget-foyer`, port 8081 (`nas/budget/`, `Dockerfile.budget`), workflows `budget-*.yml`.
+  Dans `budget/` : `npm test`, `npx tsc --noEmit`, `npm run e2e` (Playwright, 24 tests).
 
 ## Commandes (dans `app/`)
 
