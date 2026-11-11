@@ -4,7 +4,7 @@
 import { router, useLocalSearchParams, useNavigation } from 'expo-router';
 import { useEffect, useMemo, useState } from 'react';
 import { Text, View } from 'react-native';
-import { categories, categorieDe, euros, jourLocal, lireMontant, moisDe, reglages, versChamp, AIDE_GROUPES, libelleMois } from '../core/mois';
+import { categories, categorieDe, euros, frequentes, jourLocal, lireMontant, moisDe, reglages, versChamp, AIDE_GROUPES, libelleMois } from '../core/mois';
 import { GROUPES, type Groupe, type Transaction, type TypeTransaction } from '../core/types';
 import { nouvelId, remplacer, useStore } from '../data/store';
 import { Alerte, Bascule, Bouton, Champ, confirmer, Ecran, Etiquette, Ligne, PastilleGroupe, PaveMontant, Puce, Texte, useToast } from '../ui/kit';
@@ -94,6 +94,18 @@ export default function Ajouter() {
     router.back();
   };
 
+  const habituelles = !edition && typeTx === 'depense' ? frequentes(d, aujourdhui) : [];
+  /** Une dépense habituelle : un toucher l'enregistre (à la date choisie). */
+  const noterHabituelle = (f: (typeof habituelles)[number]) => {
+    const ligne: Transaction = { id: nouvelId(), jour, montant: f.montant, type: 'depense', categorieId: f.categorieId, ...(f.note ? { note: f.note } : {}) };
+    modifier((x) => ({ ...x, transactions: [...x.transactions, ligne] }));
+    toast({
+      texte: `${f.note ?? categorieDe(d, f.categorieId).nom} ${euros(f.montant)} ajoutée`,
+      annuler: () => modifier((x) => ({ ...x, transactions: x.transactions.filter((y) => y.id !== ligne.id) })),
+    });
+    router.back();
+  };
+
   const choisirSousCat = (id: string) => {
     setCategorieId(id);
     // Montant déjà tapé : toucher la catégorie enregistre (sauf en modification).
@@ -122,6 +134,23 @@ export default function Ajouter() {
           setErreur(null);
         }}
       />
+
+      {habituelles.length && !texte ? (
+        <View style={{ gap: 6 }}>
+          <Etiquette>Habituelles · un toucher pour noter</Etiquette>
+          <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
+            {habituelles.map((f) => (
+              <PastilleGroupe
+                key={`${f.categorieId}|${f.montant}|${f.note ?? ''}`}
+                groupe={categorieDe(d, f.categorieId).groupe}
+                libelle={`${f.note ?? categorieDe(d, f.categorieId).nom} ${euros(f.montant)}`}
+                choisi={false}
+                onPress={() => noterHabituelle(f)}
+              />
+            ))}
+          </View>
+        </View>
+      ) : null}
 
       <View accessible accessibilityLabel={`Montant : ${montant ? euros(montant) : 'vide'}`} style={{ alignItems: 'center', paddingVertical: 8 }}>
         <Text testID="montant" style={[t.display, chiffres, { color: texte ? c.text : c.textMuted }]}>

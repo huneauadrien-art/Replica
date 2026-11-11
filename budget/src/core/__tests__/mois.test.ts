@@ -171,3 +171,28 @@ describe('objectifs, historique, recherche', () => {
     expect(filtrer(d, tx, { texte: 'LIVRE' }).map((t) => t.id)).toEqual(['c']);
   });
 });
+
+import { frequentes } from '../mois';
+
+describe('dépenses fréquentes', () => {
+  it('au moins 2 fois en 60 jours, les plus fréquentes d’abord, note sans casse', () => {
+    const d: Donnees = {
+      ...DONNEES_VIDES,
+      transactions: [
+        dep('1', '2026-11-01', 120, 'cat-courses', 'Pain'),
+        dep('2', '2026-11-03', 120, 'cat-courses', 'pain'),
+        dep('3', '2026-11-05', 120, 'cat-courses', 'Pain'),
+        dep('4', '2026-11-02', 4500, 'cat-transport', 'Essence'),
+        dep('5', '2026-11-09', 4500, 'cat-transport', 'Essence'),
+        dep('6', '2026-11-09', 999, 'cat-restaurant'),
+        dep('vieux1', '2026-08-01', 50, 'cat-livres'),
+        dep('vieux2', '2026-08-02', 50, 'cat-livres'),
+        { id: 'r', jour: '2026-11-04', montant: 120, type: 'revenu' },
+      ],
+    };
+    expect(frequentes(d, '2026-11-10')).toEqual([
+      { categorieId: 'cat-courses', montant: 120, note: 'Pain', fois: 3 },
+      { categorieId: 'cat-transport', montant: 4500, note: 'Essence', fois: 2 },
+    ]);
+  });
+});

@@ -38,3 +38,5 @@ Budget hebdo calculé par IA,mois,could,yes,partial,source 9 ; division simple s
 Lien bancaire automatique,banque,skip,unknown,skip,agrément DSP2 et contraire à la méthode
 Abonnement Pro,vente,skip,yes,skip,usage perso : tout inclus
 Noms textes et icônes des applis Kakeibo,marque,skip,yes,skip,refaire ; nom à choisir avec replica-brand
+Dépenses habituelles en un toucher,saisie,should,no,yes,fixes-kakeibo.md n°1 ; frequentes()
+Synchro sans perte entre téléphones (rien ne part avant confirmation du NAS),technique,should,no,yes,fixes-kakeibo.md n°6

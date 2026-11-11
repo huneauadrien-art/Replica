@@ -87,3 +87,15 @@ test.describe('F02 Noter une dépense', () => {
     await expect(page.getByText(eur('+150 €'))).toBeVisible();
   });
 });
+
+test('F02-E7 dépense habituelle : notée en un toucher', async ({ page }) => {
+  const dep = (id: string, n: number) => ({ id, jour: jour(-n), montant: 120, type: 'depense' as const, categorieId: 'cat-courses', note: 'Pain' });
+  await semer(page, foyerPret({ transactions: [dep('a', 1), dep('b', 2)] }));
+  await page.goto('/');
+  await page.getByRole('button', { name: 'Ajouter une dépense' }).click();
+  await page.getByRole('radio', { name: /^Pain 1,20\s€$/ }).click();
+  await expect(page.getByText(/Pain 1,20\s€ ajoutée/)).toBeVisible();
+  const t = (await lire(page)).transactions;
+  expect(t).toHaveLength(3);
+  expect(t[2]).toEqual(expect.objectContaining({ jour: jour(), montant: 120, note: 'Pain', categorieId: 'cat-courses' }));
+});

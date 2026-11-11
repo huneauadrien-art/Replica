@@ -306,3 +306,32 @@ export function filtrer(d: Donnees, liste: Transaction[], filtre: { groupe?: Gro
     return sansAccents(`${t.note ?? ''} ${cat?.nom ?? ''} ${euros(t.montant)}`).includes(q);
   });
 }
+
+// --- dépenses fréquentes ----------------------------------------------------
+
+export type Frequente = { categorieId: string; montant: Centimes; note?: string; fois: number };
+
+/**
+ * Les dépenses qui reviennent (même catégorie, même montant, même note) au moins
+ * 2 fois sur les 60 derniers jours, les plus fréquentes d'abord : un toucher suffit
+ * pour les noter à nouveau.
+ */
+export function frequentes(d: Donnees, aujourdhui: Jour, max = 4): Frequente[] {
+  const compte = new Map<string, Frequente & { dernier: Jour }>();
+  for (const t of d.transactions) {
+    if (t.type !== 'depense' || !t.categorieId || t.jour > aujourdhui || ecartJours(t.jour, aujourdhui) > 60) continue;
+    if (categorieDe(d, t.categorieId).archivee) continue;
+    const note = t.note?.trim() || undefined;
+    const cle = `${t.categorieId}|${t.montant}|${(note ?? '').toLowerCase()}`;
+    const f = compte.get(cle);
+    if (f) {
+      f.fois++;
+      if (t.jour > f.dernier) f.dernier = t.jour;
+    } else compte.set(cle, { categorieId: t.categorieId, montant: t.montant, note, fois: 1, dernier: t.jour });
+  }
+  return [...compte.values()]
+    .filter((f) => f.fois >= 2)
+    .sort((a, b) => b.fois - a.fois || (a.dernier < b.dernier ? 1 : -1))
+    .slice(0, max)
+    .map(({ dernier: _, ...f }) => f);
+}
