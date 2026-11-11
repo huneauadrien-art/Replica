@@ -1,0 +1,14 @@
+{
+  "name": "Bas de laine",
+  "avoid": [
+    "Kakeibo",
+    "Kakebo",
+    "Save First",
+    "Halil",
+    "Kakei"
+  ],
+  "domains": [
+    "kakeibo-website.pages.dev"
+  ],
+  "colors": []
+}

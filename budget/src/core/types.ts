@@ -1,4 +1,4 @@
-// Schéma des données du budget du foyer (clone Kakeibo).
+// Schéma des données de Bas de laine (budget du foyer, méthode des 4 catégories).
 // Pas de base SQL : comme Registre Vigne, chaque téléphone garde ses fiches
 // (AsyncStorage / IndexedDB) et le NAS les synchronise (un fichier JSON).
 //

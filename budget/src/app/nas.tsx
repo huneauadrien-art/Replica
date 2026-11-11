@@ -95,7 +95,7 @@ export default function Nas() {
     <Ecran>
       <Carte>
         <SousTitre>Serveur NAS</SousTitre>
-        <Texte doux>Reliez ce téléphone au serveur du budget installé sur votre NAS : le budget est partagé entre les téléphones du foyer et sauvegardé chaque jour sur le NAS.</Texte>
+        <Texte doux>Reliez ce téléphone au serveur Bas de laine installé sur votre NAS : le budget est partagé entre les téléphones du foyer et sauvegardé chaque jour sur le NAS.</Texte>
       </Carte>
       <Champ label="Adresse du NAS" value={url} onChangeText={setUrl} autoCapitalize="none" autoCorrect={false} keyboardType="url" placeholder="http://192.168.1.20:8081" />
       <Champ label="Code d’accès" value={code} onChangeText={setCode} autoCapitalize="none" autoCorrect={false} secureTextEntry placeholder="Le CODE choisi à l’installation" />

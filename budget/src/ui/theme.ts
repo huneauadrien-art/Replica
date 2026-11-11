@@ -1,5 +1,5 @@
-// Jetons de design, générés depuis replica/design-kakeibo/tokens.json (ne pas écrire de couleur ailleurs).
-// Après un changement de couleurs : python3 .claude/skills/replica-design/contrast.py replica/design-kakeibo/tokens.json
+// Jetons de design, générés depuis replica/design-bas-de-laine/tokens.json (ne pas écrire de couleur ailleurs).
+// Après un changement de couleurs : python3 .claude/skills/replica-design/contrast.py replica/design-bas-de-laine/tokens.json
 
 import type { Groupe } from '../core/types';
 

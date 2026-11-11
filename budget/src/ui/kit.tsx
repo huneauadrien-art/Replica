@@ -1,4 +1,4 @@
-// Composants communs (spécification : replica/design-kakeibo/components.md).
+// Composants communs (spécification : replica/design-bas-de-laine/components.md).
 // Les écrans n'écrivent aucune couleur : tout passe par theme.ts.
 
 import { createContext, useCallback, useContext, useEffect, useRef, useState, type ReactNode } from 'react';

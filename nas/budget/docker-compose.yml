@@ -1,4 +1,4 @@
-# Budget du foyer sur le NAS. Dans UGOS Pro : Docker › Projet › Créer, collez ce fichier.
+# Bas de laine (budget du foyer) sur le NAS. Dans UGOS Pro : Docker › Projet › Créer, collez ce fichier.
 # Projet séparé du registre de la vigne : autre code, autre dossier de données, port 8081.
 services:
   budget-foyer:

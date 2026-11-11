@@ -38,6 +38,6 @@ export async function appelServeur<T>(s: Serveur, chemin: string, corps?: unknow
   try {
     return (await reponse.json()) as T;
   } catch {
-    throw new Error("Cette adresse ne répond pas comme le serveur du budget.");
+    throw new Error("Cette adresse ne répond pas comme le serveur Bas de laine.");
   }
 }

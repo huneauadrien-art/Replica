@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "Budget du foyer",
+    "name": "Bas de laine",
     "slug": "budget-foyer",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -12,7 +12,7 @@
     },
     "android": {
       "adaptiveIcon": {
-        "backgroundColor": "#E1EEEC",
+        "backgroundColor": "#1F5F5B",
         "foregroundImage": "./assets/android-icon-foreground.png",
         "backgroundImage": "./assets/android-icon-background.png",
         "monochromeImage": "./assets/android-icon-monochrome.png"

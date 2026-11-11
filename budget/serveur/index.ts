@@ -172,4 +172,4 @@ const serveur = createServer(async (req, res) => {
   }
 });
 
-serveur.listen(PORT, () => console.log(`Budget du foyer ${VERSION} : http://0.0.0.0:${PORT} — données dans ${DONNEES}`));
+serveur.listen(PORT, () => console.log(`Bas de laine ${VERSION} : http://0.0.0.0:${PORT} — données dans ${DONNEES}`));

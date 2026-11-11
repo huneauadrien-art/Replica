@@ -46,10 +46,10 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           cp android/app/build/outputs/apk/release/app-release.apk budget-foyer.apk
-          NOTES="Version du $(date -u +'%Y-%m-%d %H:%M') UTC, commit ${GITHUB_SHA::7}. Sur Android : téléchargez budget-foyer.apk, puis autorisez l'installation depuis le navigateur."
+          NOTES="Version du $(date -u +'%Y-%m-%d %H:%M') UTC, commit ${GITHUB_SHA::7}. Bas de laine pour Android : téléchargez budget-foyer.apk, puis autorisez l'installation depuis le navigateur."
           if gh release view budget-android-latest >/dev/null 2>&1; then
             gh release edit budget-android-latest --notes "$NOTES" --target "$GITHUB_SHA"
             gh release upload budget-android-latest budget-foyer.apk --clobber
           else
-            gh release create budget-android-latest budget-foyer.apk --prerelease --title "Budget du foyer – Android" --notes "$NOTES" --target "$GITHUB_SHA"
+            gh release create budget-android-latest budget-foyer.apk --prerelease --title "Bas de laine – Android" --notes "$NOTES" --target "$GITHUB_SHA"
           fi
