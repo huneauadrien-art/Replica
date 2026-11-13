@@ -1,6 +1,5 @@
 import { Text } from 'react-native';
 import { Tabs } from 'expo-router/js-tabs';
-import { c as cave } from '../../ui/cave/theme';
 import { couleurs } from '../../ui/kit';
 
 const icone = (emoji: string) => () => <Text style={{ fontSize: 18, lineHeight: 22 }}>{emoji}</Text>;
@@ -24,16 +23,6 @@ export default function Onglets() {
       <Tabs.Screen name="traitements" options={{ title: 'Traitements', tabBarIcon: icone('💧') }} />
       <Tabs.Screen name="stock" options={{ title: 'Stock', tabBarIcon: icone('📦') }} />
       <Tabs.Screen name="registre" options={{ title: 'Registre', tabBarIcon: icone('📋') }} />
-      <Tabs.Screen name="cave" options={{
-          title: 'Cave',
-          tabBarIcon: icone('🍷'),
-          headerShown: false,
-          // Barre d'onglets sombre tant que la cave est affichée.
-          tabBarStyle: { minHeight: 60, backgroundColor: cave.fondProfond, borderTopColor: cave.bord },
-          tabBarActiveTintColor: cave.orTexte,
-          tabBarInactiveTintColor: cave.doux,
-          sceneStyle: { backgroundColor: cave.fond },
-        }} />
     </Tabs>
   );
 }

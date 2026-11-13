@@ -48,7 +48,7 @@ export default function Reglages() {
     if (mode === 'recevoir' && !localVide) {
       const ok = await confirmer(
         'Remplacer les données de ce téléphone ?',
-        'Toutes les données de ce téléphone (registre, factures, cave à vin) seront remplacées par celles du NAS.',
+        'Toutes les données de ce téléphone (parcelles, produits, traitements, factures) seront remplacées par celles du NAS.',
         'Remplacer',
       );
       if (!ok) return;
@@ -126,10 +126,10 @@ export default function Reglages() {
         <Carte>
           <Texte gras>NAS joignable</Texte>
           <Texte doux>
-            Sur le NAS : {nas.fiches.parcelles} parcelle(s), {nas.fiches.produits} produit(s), {nas.fiches.traitements} traitement(s), {nas.fiches.bouteilles ?? 0} fiche(s) de bouteille.
+            Sur le NAS : {nas.fiches.parcelles} parcelle(s), {nas.fiches.produits} produit(s), {nas.fiches.traitements} traitement(s).
           </Texte>
           <Texte doux>
-            Sur ce téléphone : {d.parcelles.length} parcelle(s), {d.produits.length} produit(s), {d.traitements.length} traitement(s), {d.bouteilles.filter((b) => b.statut === 'cave').length} bouteille(s) en cave.
+            Sur ce téléphone : {d.parcelles.length} parcelle(s), {d.produits.length} produit(s), {d.traitements.length} traitement(s).
           </Texte>
         </Carte>
       )}

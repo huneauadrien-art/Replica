@@ -1,0 +1,13 @@
+{
+  "compilerOptions": {
+    "target": "es2022",
+    "module": "nodenext",
+    "moduleResolution": "nodenext",
+    "rootDir": "..",
+    "outDir": "../build-serveur",
+    "strict": true,
+    "types": ["node"],
+    "skipLibCheck": true
+  },
+  "files": ["index.ts"]
+}

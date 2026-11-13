@@ -1,7 +1,7 @@
 # Composants de la cave
 
 Jetons : `replica/design/tokens-cave.json` (contrastes AA vérifiés : 22 paires, 0 échec).
-Code : `app/src/ui/cave/theme.ts`, `kit.tsx`, `Grille.tsx`, `FormVin.tsx`.
+Code : `cave/src/ui/cave/theme.ts`, `kit.tsx`, `Grille.tsx`, `FormVin.tsx`.
 
 Écart volontaire avec l'original : le texte blanc des **boutons** rouges est posé sur
 `#d13b41` (au lieu de `#e5484d`) pour être lisible (4,8:1). Le rond « + » garde `#e5484d`.

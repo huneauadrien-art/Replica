@@ -10,7 +10,7 @@
 
 import type { Donnees } from './types';
 
-export const COLLECTIONS = ['parcelles', 'produits', 'mouvements', 'traitements', 'factures', 'meubles', 'vins', 'bouteilles', 'degustations'] as const;
+export const COLLECTIONS = ['parcelles', 'produits', 'mouvements', 'traitements', 'factures'] as const;
 export type Collection = (typeof COLLECTIONS)[number];
 
 export type Fiche = { id: string; maj?: number; supprime?: boolean; [champ: string]: unknown };
@@ -85,7 +85,7 @@ export type EtatServeur = {
 
 export const etatServeurVide = (): EtatServeur => ({
   rev: 0,
-  fiches: Object.fromEntries(COLLECTIONS.map((c) => [c, {}])) as EtatServeur['fiches'],
+  fiches: { parcelles: {}, produits: {}, mouvements: {}, traitements: {}, factures: {} },
 });
 
 /**
@@ -130,5 +130,5 @@ export function compter(etat: EtatServeur): Record<Collection, number> {
   return r;
 }
 
-/** Aucune fiche dans aucune collection (registre, factures, cave). */
+/** Aucune fiche dans aucune collection (parcelles, produits, mouvements, traitements, factures). */
 export const estVide = (d: Donnees) => COLLECTIONS.every((c) => (d[c] as unknown[]).length === 0);

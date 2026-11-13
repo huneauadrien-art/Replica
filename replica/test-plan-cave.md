@@ -1,9 +1,9 @@
 # Plan de test : cave à vin
 
-Automatique : `app/e2e/cave.e2e.mjs` (Playwright, version web servie par le serveur du NAS
-en local) et `app/src/core/__tests__/cave.test.ts` (vitest, 13 cas de logique).
+Automatique : `cave/e2e/cave.e2e.mjs` (Playwright, version web servie par le serveur du NAS
+en local) et `cave/src/core/__tests__/cave.test.ts` (vitest, 13 cas de logique).
 Chaque passage échoue sur une erreur de la console ou une réponse 5xx.
-Dernier passage : 2026-11-13, **13/13 de bout en bout, 71/71 en vitest**.
+Dernier passage : 2026-11-13, app séparée Ma Cave : **14/14 de bout en bout, 25/25 en vitest**.
 
 | cas | parcours | ce qu'on vérifie | auto | résultat |
 | --- | --- | --- | --- | --- |
@@ -19,6 +19,7 @@ Dernier passage : 2026-11-13, **13/13 de bout en bout, 71/71 en vitest**.
 | F46-E1 | meuble rétréci | confirmation, la bouteille hors grille repasse « à ranger » | e2e | ok |
 | F42-E1 | filtres | Blanc vide, Rouge rempli | e2e | ok |
 | F47-H1 | supprimer un vin | bouteilles et notes supprimées | e2e | ok |
+| N-1 | relier au NAS (Réglages) | test de connexion, envoi de la cave, le NAS compte 1 vin et 3 bouteilles | e2e | ok |
 | S-1 | synchro NAS | vins et bouteilles reçus, gardés après redémarrage du serveur | à la main (curl) | ok |
 | S-2 | deux téléphones rangent dans la même case hors ligne | la plus récente reste, l'autre repasse à ranger | vitest | ok |
 | S-3 | garde | jeune → prêt → apogée → vite → passé ; fenêtre saisie prioritaire ; sans millésime | vitest | ok |

@@ -86,9 +86,9 @@ describe('deux téléphones', () => {
 });
 
 describe('téléphone vide', () => {
-  it('ne compte pas pour vide un téléphone qui n’a que sa cave', async () => {
+  it('ne compte pas pour vide un téléphone qui n’a que des factures', async () => {
     const { estVide } = await import('../sync');
     expect(estVide(DONNEES_VIDES)).toBe(true);
-    expect(estVide({ ...DONNEES_VIDES, bouteilles: [{ id: 'b', vinId: 'v', entree: '2026-11-13', statut: 'cave' }] })).toBe(false);
+    expect(estVide({ ...DONNEES_VIDES, factures: [{ id: 'f', type: 'facture', fournisseur: 'X', numero: '1', date: '2026-11-13', lignes: [], source: 'saisie' }] })).toBe(false);
   });
 });

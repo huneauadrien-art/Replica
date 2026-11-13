@@ -1,12 +1,17 @@
-# Architecture : la cave à vin (inspirée de Tire-Bouchon) dans Registre Vigne
+# Architecture : Ma Cave, cave à vin (inspirée de Tire-Bouchon)
 
 Source : `replica/recon-tire-bouchon.md`, `replica/features-tire-bouchon.csv`.
 Pour : la cave **personnelle** de l'utilisateur (pas le stock du domaine).
+
+> **Mise à jour du 2026-11-13** : à la demande de l'utilisateur, la cave est une **app
+> séparée** (`cave/`, « Ma Cave »), sans lien avec Registre Vigne. Elle reprend la même pile
+> (copie, pas de code partagé) : son propre stockage, son propre service sur le NAS (port
+> 8081, image `ma-cave`), son propre apk. Les chemins `src/…` ci-dessous sont dans `cave/`.
 Date : 2026-11-13
 
 ## Pile technique
 
-On ne change rien : la cave devient une partie de l'app existante.
+La même pile que Registre Vigne, recopiée dans `cave/`.
 
 | couche | choix | pourquoi |
 | --- | --- | --- |

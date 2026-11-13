@@ -1,0 +1,18 @@
+# Ma Cave sur le NAS. Dans UGOS Pro : Docker › Projet › Créer, collez ce fichier.
+# Projet séparé de Registre Vigne : ses propres données, sur le port 8081.
+services:
+  ma-cave:
+    image: ghcr.io/huneauadrien-art/ma-cave:latest
+    container_name: ma-cave
+    # Télécharge la dernière version à chaque démarrage du projet.
+    pull_policy: always
+    restart: unless-stopped
+    ports:
+      - "8081:8080"
+    environment:
+      # Le code que l'app demandera. Choisissez-en un long, sans espace.
+      CODE: "remplacez-par-votre-code"
+      TZ: "Europe/Paris"
+    volumes:
+      # La cave, les photos d'étiquettes et les sauvegardes quotidiennes, dans le dossier du projet.
+      - ./donnees:/donnees
