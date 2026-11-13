@@ -27,7 +27,7 @@ sait lancer des commandes.
 - `cave/` : **Ma Cave**, app séparée (cave à vin perso, visuel façon Tire-Bouchon), même
   organisation que `app/` (`src/core/cave.ts`, `src/ui/cave/`, `serveur/`, `e2e/`). Aucun lien
   avec Registre Vigne : ses données, son image `ghcr.io/huneauadrien-art/ma-cave` (NAS port
-  8081, `cave/nas/docker-compose.yml`), son apk (release `cave-android-latest`). Mêmes
+  8083, `cave/nas/docker-compose.yml`), son apk (release `cave-android-latest`). Mêmes
   commandes, à lancer dans `cave/`. Garder les deux apps indépendantes (pas d'import croisé).
 
 ## Commandes (dans `app/`)

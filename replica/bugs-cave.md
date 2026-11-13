@@ -24,4 +24,4 @@
 
 - Les deux serveurs répondent de la même façon. Le serveur Ma Cave dit maintenant qui il est
   (`app: 'ma-cave'` dans `/api/etat`) et l'écran Réglages refuse une autre adresse, avec un
-  message qui rappelle le port 8081.
+  message qui rappelle le port 8083.

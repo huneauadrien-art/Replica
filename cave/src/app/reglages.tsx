@@ -54,7 +54,7 @@ export default function Reglages() {
     try {
       const e = await appelServeur<EtatNas>(serveur, '/api/etat');
       // Le serveur de Registre Vigne répond aussi : on refuse de lui envoyer la cave.
-      if (e.app !== 'ma-cave') throw new Error("Cette adresse est celle d'un autre serveur (Registre Vigne ?). Sur le NAS, Ma Cave répond sur le port 8081.");
+      if (e.app !== 'ma-cave') throw new Error("Cette adresse est celle d'un autre serveur (Registre Vigne ?). Sur le NAS, Ma Cave répond sur le port 8083.");
       setNas(e);
     } catch (x) {
       setErreur((x as Error).message);
@@ -122,7 +122,7 @@ export default function Reglages() {
   ) : (
     <>
       <T.texte doux>Reliez ce téléphone au service Ma Cave de votre NAS : la cave est partagée entre vos appareils et sauvegardée chaque jour sur le NAS.</T.texte>
-      <ChampCave label="ADRESSE DU NAS" value={url} onChangeText={setUrl} autoCapitalize="none" autoCorrect={false} keyboardType="url" placeholder="http://192.168.1.20:8081" />
+      <ChampCave label="ADRESSE DU NAS" value={url} onChangeText={setUrl} autoCapitalize="none" autoCorrect={false} keyboardType="url" placeholder="http://192.168.1.20:8083" />
       <ChampCave label="CODE D'ACCÈS" value={code} onChangeText={setCode} autoCapitalize="none" autoCorrect={false} secureTextEntry placeholder="Le CODE choisi à l'installation" />
       <BoutonCave titre="Tester la connexion" variante="creme" onPress={tester} desactive={!url.trim() || !code.trim() || attente} />
       {attente ? <ActivityIndicator color={c.or} /> : null}

@@ -11,14 +11,14 @@ Indépendante de Registre Vigne : ses propres données, son propre service sur l
    `docker/ma-cave`.
 2. Collez le contenu de [`nas/docker-compose.yml`](nas/docker-compose.yml) et remplacez
    `remplacez-par-votre-code` par un code long (au moins 16 caractères).
-3. Lancez le projet. Vérification : `http://<adresse-du-nas>:8081` affiche l'app.
+3. Lancez le projet. Vérification : `http://<adresse-du-nas>:8083` affiche l'app.
 
 Si le NAS répond « denied » en téléchargeant l'image : sur GitHub, **Packages** ›
 `ma-cave` › **Package settings** › **Change visibility** › Public.
 
 ## Relier les téléphones
 
-Dans l'app : bouton ⚙ (Réglages) › adresse `http://<adresse-du-nas>:8081` et le code ›
+Dans l'app : bouton ⚙ (Réglages) › adresse `http://<adresse-du-nas>:8083` et le code ›
 **Tester la connexion**. Le premier téléphone **envoie** sa cave, les autres la **prennent**.
 
 ## Mettre à jour
