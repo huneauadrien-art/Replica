@@ -1,0 +1,21 @@
+# Ma Cave sur le NAS. Dans UGOS Pro : Docker › Projet › Créer, collez ce fichier.
+# Projet séparé de Registre Vigne : ses propres données, sur le port 8083.
+services:
+  ma-cave:
+    image: ghcr.io/huneauadrien-art/ma-cave:latest
+    container_name: ma-cave
+    # Télécharge la dernière version à chaque démarrage du projet.
+    pull_policy: always
+    restart: unless-stopped
+    ports:
+      - "8083:8080"
+    environment:
+      # Le code que l'app demandera. Choisissez-en un long, sans espace.
+      CODE: "remplacez-par-votre-code"
+      TZ: "Europe/Paris"
+      # Facultatif : clé Anthropic pour reconnaître les bouteilles en photo (Claude Sonnet,
+      # environ 2 centimes la photo). Vide : pas de reconnaissance ; le code-barres marche sans clé.
+      ANTHROPIC_API_KEY: ""
+    volumes:
+      # La cave, les photos d'étiquettes et les sauvegardes quotidiennes, dans le dossier du projet.
+      - ./donnees:/donnees

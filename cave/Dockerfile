@@ -1,0 +1,24 @@
+# Serveur Ma Cave pour le NAS : synchronisation des téléphones + version web.
+# Construit depuis le dossier cave/ : docker build cave
+FROM node:22-bookworm-slim AS construction
+ARG VERSION=dev
+WORKDIR /src
+COPY package.json package-lock.json ./
+RUN npm ci --no-audit --no-fund
+COPY . ./
+RUN npx tsc --noEmit \
+ && npx vitest run \
+ && EXPO_OFFLINE=1 EXPO_PUBLIC_VERSION=$VERSION npx expo export --platform web --output-dir /out/site \
+ && npx tsc -p serveur/tsconfig.json --outDir /out \
+ && node -e "const p=require('./package.json');require('fs').writeFileSync('/out/package.json',JSON.stringify({name:'ma-cave-serveur',private:true,dependencies:{'@anthropic-ai/sdk':p.dependencies['@anthropic-ai/sdk']}}))" \
+ && cd /out && npm install --omit=dev --no-audit --no-fund --no-package-lock
+
+FROM node:22-bookworm-slim
+ARG VERSION=dev
+ENV NODE_ENV=production PORT=8080 DONNEES=/donnees VERSION=$VERSION
+WORKDIR /app
+COPY --from=construction /out/ ./
+VOLUME /donnees
+EXPOSE 8080
+HEALTHCHECK --interval=1m --timeout=5s CMD node -e "fetch('http://127.0.0.1:'+process.env.PORT+'/').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"
+CMD ["node", "serveur/index.js"]

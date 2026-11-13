@@ -1,0 +1,43 @@
+# Construit l'image Docker de Ma Cave pour le NAS : ghcr.io/<compte>/ma-cave:latest
+name: Ma Cave – serveur NAS
+
+on:
+  push:
+    branches: [main, claude/replica-skill-install-u8a3g6]
+    paths: ['cave/**', '.github/workflows/cave-nas.yml']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  packages: write
+
+concurrency:
+  group: cave-nas-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  image:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/setup-buildx-action@v3
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ github.token }}
+      - name: Nom de l'image en minuscules
+        id: nom
+        run: echo "image=ghcr.io/${GITHUB_REPOSITORY_OWNER,,}/ma-cave" >> "$GITHUB_OUTPUT"
+      - uses: docker/build-push-action@v6
+        with:
+          context: cave
+          platforms: linux/amd64
+          push: true
+          tags: |
+            ${{ steps.nom.outputs.image }}:latest
+            ${{ steps.nom.outputs.image }}:${{ github.sha }}
+          build-args: VERSION=${{ github.sha }}
+          labels: org.opencontainers.image.source=https://github.com/${{ github.repository }}
+          cache-from: type=gha,scope=cave
+          cache-to: type=gha,mode=max,scope=cave

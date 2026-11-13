@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { ActivityIndicator, View } from 'react-native';
-import type { Collection } from '../core/sync';
+import { estVide, type Collection } from '../core/sync';
 import { adresseProposee, appelServeur, normaliserUrl } from '../data/serveur';
 import { useStore } from '../data/store';
 import { VERSION_APP } from '../version';
@@ -28,7 +28,7 @@ export default function Reglages() {
   }, [synchro.serveur, synchro.dernier?.quand]);
 
   const serveur = { url: normaliserUrl(url), code: code.trim() };
-  const localVide = d.parcelles.length + d.produits.length + d.traitements.length + d.mouvements.length === 0;
+  const localVide = estVide(d);
   const nasVide = nas ? Object.values(nas.fiches).every((n) => n === 0) : true;
 
   const tester = async () => {
@@ -48,7 +48,7 @@ export default function Reglages() {
     if (mode === 'recevoir' && !localVide) {
       const ok = await confirmer(
         'Remplacer les données de ce téléphone ?',
-        'Les parcelles, produits et traitements de ce téléphone seront remplacés par ceux du NAS.',
+        'Toutes les données de ce téléphone (parcelles, produits, traitements, factures) seront remplacées par celles du NAS.',
         'Remplacer',
       );
       if (!ok) return;

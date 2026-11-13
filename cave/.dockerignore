@@ -1,0 +1,7 @@
+node_modules
+dist
+build-serveur
+.expo
+android
+ios
+e2e

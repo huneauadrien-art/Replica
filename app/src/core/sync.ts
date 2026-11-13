@@ -129,3 +129,6 @@ export function compter(etat: EtatServeur): Record<Collection, number> {
   for (const c of COLLECTIONS) r[c] = Object.values(etat.fiches[c]).filter((x) => !x.fiche.supprime).length;
   return r;
 }
+
+/** Aucune fiche dans aucune collection (parcelles, produits, mouvements, traitements, factures). */
+export const estVide = (d: Donnees) => COLLECTIONS.every((c) => (d[c] as unknown[]).length === 0);

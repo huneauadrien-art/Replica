@@ -22,8 +22,15 @@ sait lancer des commandes.
 - `Dockerfile` + `nas/` : image et docker-compose pour le NAS UGREEN DXP2800 (UGOS).
 - `.github/workflows/` : apk Android (release `android-latest`), web (GitHub Pages),
   image `ghcr.io/huneauadrien-art/registre-vigne` (publique).
-- `replica/` : cartes de reconnaissance (Process2Wine, Smag Farmer, Kolecto) et
-  tableaux de fonctionnalités.
+- `replica/` : cartes de reconnaissance (Process2Wine, Smag Farmer, Kolecto, Tire-Bouchon),
+  tableaux de fonctionnalités, architecture, jetons de design, plans de test.
+- `cave/` : **Ma Cave**, app séparée (cave à vin perso, visuel façon Tire-Bouchon), même
+  organisation que `app/` (`src/core/cave.ts`, `src/ui/cave/`, `serveur/`, `e2e/`). Aucun lien
+  avec Registre Vigne : ses données, son image `ghcr.io/huneauadrien-art/ma-cave` (NAS port
+  8083, `cave/nas/docker-compose.yml`), son apk (release `cave-android-latest`). Mêmes
+  commandes, à lancer dans `cave/`. Garder les deux apps indépendantes (pas d'import croisé).
+  L'utilisateur installe Ma Cave avec le **dossier tout prêt** : `bash nas/fabriquer-dossier.sh`
+  → `cave/build-nas/ma-cave.zip` (image `node` + appli déjà construite), à lui envoyer.
 
 ## Commandes (dans `app/`)
 
@@ -50,6 +57,11 @@ Playwright (`/opt/pw-browsers`) contre `dist/` servi par le serveur lancé en lo
 - Branche de travail : `claude/replica-skill-install-u8a3g6` (pas de PR sans demande).
 
 ## Reste à faire (au choix de l'utilisateur)
+
+- Ma Cave (fait : lecture d'étiquette par Claude Sonnet via le NAS, `cave/serveur/ia.ts`, clé
+  `ANTHROPIC_API_KEY` dans le docker-compose du NAS ; code-barres via Open Food Facts ; tests
+  avec `cave/e2e/faux-services.mjs`, jamais d'appel payant). Reste : scan en rafale, alertes d'apogée, sommelier,
+  import Excel (voir `replica/features-tire-bouchon.csv`).
 
 - GPS du pulvérisateur : tracer la bande traitée sur la parcelle et compter les ha
   (marque/modèle du boîtier de commande encore inconnus ; prévoir un bouton

@@ -1,0 +1,40 @@
+feature,area,priority,original,clone,notes
+Ajouter une bouteille à la main (domaine cuvée appellation millésime couleur),entrée,must,yes,yes,S45 sans IA
+Quantité et prix payé par bouteille,entrée,must,yes,yes,« ×2 » « 13 sans prix »
+Fenêtre de garde calculée (prêt / apogée / à boire vite),garde,must,yes,yes,table maison couleur × région ; corrigeable
+Jauge de garde de la cave,garde,must,yes,yes,S40 Prêt / Apogée / À boire vite
+Carte « À boire ce soir »,garde,must,yes,yes,S40
+Liste « Boire avant » (urgences),garde,must,yes,yes,S41 liseré rouge
+Créer ses meubles (rangées × colonnes),plan,must,yes,yes,S43
+Plan de cave en grille colorée par couleur du vin,plan,must,yes,yes,S42
+Ranger : toucher une case libre,plan,must,yes,yes,S46
+Bac « À ranger »,plan,must,yes,yes,
+Emplacement affiché partout (R2 · C5) et retrouver la case,plan,must,yes,yes,F42
+Fiche vin (frise d'apogée service cépages),fiche,must,yes,yes,S47
+Déguster : sortir la bouteille et libérer la case,dégustation,must,yes,yes,F43
+Visuel sombre façon Tire-Bouchon (couleurs polices composants),visuel,must,yes,yes,demande de l'utilisateur ; sans nom ni logo
+Filtres Tout / Prêtes / Rouge / Blanc / Rosé,liste,should,yes,yes,
+Valeur de la cave (≈ €),liste,should,yes,yes,
+Note de dégustation (note robe arômes avec qui photo),dégustation,should,yes,yes,
+Carnet de dégustation,dégustation,should,yes,yes,
+Photo de l'étiquette jointe à la bouteille,entrée,should,yes,yes,pièces jointes existantes
+Lecture de l'étiquette par IA,entrée,should,yes,yes,Claude Sonnet appelé par le NAS (clé ANTHROPIC_API_KEY) ; remplace leur catalogue
+Code-barres (Open Food Facts),entrée,should,no,yes,ajout : gratuit ; vin déjà en cave reconnu sans Internet
+Scan en rafale (carton entier),entrée,should,yes,no,F41
+Alertes d'apogée (notification),garde,should,yes,no,notifications locales
+Profil gustatif et arômes,fiche,should,yes,yes,saisie manuelle
+Synchronisation entre téléphones par le NAS,données,should,no,yes,ajout : déjà dans Registre Vigne
+Export de la cave (CSV),données,should,yes,yes,
+Sommelier : accord mets-vins dans sa cave,sommelier,could,yes,no,IA ou règles simples
+Statistiques par région couleur millésime,liste,could,yes,no,
+Import Excel / CSV,données,could,yes,no,assistant S54 simplifié
+Alertes par email,garde,could,yes,no,
+Mes cuvées du domaine (stock des vins produits),vigneron,could,no,no,ajout : lien avec les parcelles et le registre
+Mode hors ligne avec analyse différée,entrée,could,yes,no,déjà hors ligne d'abord
+Vue Liste / Plan en bascule,plan,could,yes,yes,
+Mettre une case en avant depuis la fiche,plan,could,yes,yes,
+Catalogue de 190 000 vins,catalogue,skip,yes,no,base qui leur appartient
+Guide des vins (régions cépages appellations),contenu,skip,yes,no,contenu rédigé par eux
+Amis et caves partagées,social,skip,yes,no,réseau ; inutile pour un domaine
+Abonnement Premium,paiement,skip,yes,no,app personnelle
+Nom logo icône photos et textes de Tire-Bouchon,marque,skip,yes,no,leur propriété
