@@ -42,6 +42,14 @@
           "cameraPermission": "Pour photographier l’étiquette d’une bouteille.",
           "microphonePermission": false
         }
+      ],
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "Pour lire le code-barres d’une bouteille.",
+          "microphonePermission": false,
+          "recordAudioAndroid": false
+        }
       ]
     ],
     "scheme": "macave",

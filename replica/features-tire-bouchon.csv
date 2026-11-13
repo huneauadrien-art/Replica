@@ -18,7 +18,8 @@ Valeur de la cave (≈ €),liste,should,yes,yes,
 Note de dégustation (note robe arômes avec qui photo),dégustation,should,yes,yes,
 Carnet de dégustation,dégustation,should,yes,yes,
 Photo de l'étiquette jointe à la bouteille,entrée,should,yes,yes,pièces jointes existantes
-Lecture de l'étiquette par IA,entrée,should,yes,no,clé API + Internet via le NAS
+Lecture de l'étiquette par IA,entrée,should,yes,yes,Claude Sonnet appelé par le NAS (clé ANTHROPIC_API_KEY) ; remplace leur catalogue
+Code-barres (Open Food Facts),entrée,should,no,yes,ajout : gratuit ; vin déjà en cave reconnu sans Internet
 Scan en rafale (carton entier),entrée,should,yes,no,F41
 Alertes d'apogée (notification),garde,should,yes,no,notifications locales
 Profil gustatif et arômes,fiche,should,yes,yes,saisie manuelle

@@ -19,7 +19,7 @@ export default function NouvelleBouteille() {
         nouveau
         onValider={({ vin, quantite, prix }) => {
           const existant = d.vins.find((v) => memeVin(v, vin));
-          const v = existant ? { ...existant, photo: existant.photo ?? vin.photo } : vin;
+          const v = existant ? { ...existant, photo: existant.photo ?? vin.photo, ean: existant.ean ?? vin.ean } : vin;
           const bouteilles: Bouteille[] = Array.from({ length: quantite }, () => ({ id: nouvelId(), vinId: v.id, entree: aujourdhui(), statut: 'cave', prix }));
           modifier((x) => ({ ...x, vins: remplacer(x.vins, v), bouteilles: [...x.bouteilles, ...bouteilles] }));
           router.replace(d.meubles.length ? `/ranger?vin=${v.id}` : `/vin/${v.id}`);

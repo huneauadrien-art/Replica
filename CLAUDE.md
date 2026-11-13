@@ -58,7 +58,9 @@ Playwright (`/opt/pw-browsers`) contre `dist/` servi par le serveur lancé en lo
 
 ## Reste à faire (au choix de l'utilisateur)
 
-- Ma Cave : lecture d'étiquette par IA, scan en rafale, alertes d'apogée, sommelier,
+- Ma Cave (fait : lecture d'étiquette par Claude Sonnet via le NAS, `cave/serveur/ia.ts`, clé
+  `ANTHROPIC_API_KEY` dans le docker-compose du NAS ; code-barres via Open Food Facts ; tests
+  avec `cave/e2e/faux-services.mjs`, jamais d'appel payant). Reste : scan en rafale, alertes d'apogée, sommelier,
   import Excel (voir `replica/features-tire-bouchon.csv`).
 
 - GPS du pulvérisateur : tracer la bande traitée sur la parcelle et compter les ha

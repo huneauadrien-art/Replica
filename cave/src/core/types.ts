@@ -40,6 +40,8 @@ export type Vin = {
   accords?: string;
   notes?: string;
   photo?: PieceJointe;
+  /** Code-barres (EAN-13, EAN-8 ou UPC-A), pour retrouver le vin au prochain scan. */
+  ean?: string;
 };
 
 /** Une bouteille physique. Sans meuble : « à ranger ». */

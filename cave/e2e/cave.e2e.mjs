@@ -3,7 +3,11 @@
 //   EXPO_OFFLINE=1 CI=1 npx expo export -p web
 //   npx tsc -p serveur/tsconfig.json
 //   CODE=test PORT=8091 DONNEES=/tmp/donnees-e2e SITE=$PWD/dist node build-serveur/serveur/index.js &
-//   node e2e/cave.e2e.mjs            (URL=http://localhost:8091 par défaut)
+//   node e2e/faux-services.mjs 8095 &   (faux Anthropic + Open Food Facts : rien de payant)
+//   CODE=test PORT=8091 DONNEES=/tmp/donnees-e2e SITE=$PWD/dist \
+//     ANTHROPIC_BASE_URL=http://localhost:8095 ANTHROPIC_API_KEY=faux OFF_URL=http://localhost:8095 \
+//     node build-serveur/serveur/index.js &
+//   node e2e/cave.e2e.mjs            (URL=http://localhost:8091 par défaut, FAUX=http://localhost:8095)
 //
 // Utilise le Playwright installé sur la machine (require('playwright')). Échoue sur toute
 // erreur de la console, toute réponse 5xx, et tout cas du plan (replica/test-plan-cave.md).
@@ -13,6 +17,8 @@ const require = createRequire(import.meta.url);
 const { chromium, devices } = require('playwright');
 
 const URL = process.env.URL ?? 'http://localhost:8091';
+const FAUX = process.env.FAUX ?? 'http://localhost:8095';
+const ETIQUETTE = new globalThis.URL('./etiquette-test.jpg', import.meta.url).pathname;
 const resultats = [];
 const erreurs = [];
 const dialogues = [];
@@ -176,12 +182,63 @@ await cas('N-1', 'relier au NAS et envoyer la cave', async () => {
   await aller('/');
 });
 
+await cas('R-1', 'photo de l’étiquette : la fiche se remplit, réduite avant envoi', async () => {
+  await aller('/nouveau');
+  const [choix] = await Promise.all([p.waitForEvent('filechooser'), bouton('Galerie').click()]);
+  await choix.setFiles(ETIQUETTE);
+  await visible('Vin reconnu', 15000);
+  attendu((await champ('DOMAINE OU CHÂTEAU').inputValue()) === 'Château des Essais', 'domaine non rempli');
+  attendu((await champ('MILLÉSIME').inputValue()) === '2018', 'millésime non rempli');
+  attendu((await champ('CÉPAGES').inputValue()) === 'Merlot 80, Cabernet franc 20', 'cépages non remplis');
+  attendu((await champ('PRÊT').inputValue()) === '2022', 'garde non remplie');
+  const a = await (await fetch(`${FAUX}/__appels`)).json();
+  attendu(a.largeurImage > 0 && a.largeurImage <= 1568, `photo envoyée en ${a.largeurImage} px (${a.tailleImage} octets)`);
+  await bouton('Ajouter la bouteille').click();
+  await bouton('Plus tard').click();
+  await aller('/');
+  await visible('Château des Essais 2018');
+});
+
+await cas('R-2', 'code-barres tapé : trouvé dans Open Food Facts, puis reconnu dans la cave', async () => {
+  await aller('/nouveau');
+  await bouton('Code-barres').click();
+  await champ('OU TAPEZ LES CHIFFRES').fill('3760000000000');
+  await bouton('Chercher').click();
+  await visible('Trouvé dans Open Food Facts', 10000);
+  attendu((await champ('DOMAINE OU CHÂTEAU').inputValue()) === 'Domaine du Code', 'domaine non rempli');
+  await bouton('Ajouter la bouteille').click();
+  await bouton('Plus tard').click();
+  await aller('/nouveau');
+  await bouton('Code-barres').click();
+  await champ('OU TAPEZ LES CHIFFRES').fill('3760000000000');
+  await bouton('Chercher').click();
+  await visible('déjà dans votre cave');
+  await bouton('Ajouter la bouteille').click();
+  await bouton('Plus tard').click();
+  await aller('/');
+  await p.getByRole('button', { name: /Domaine du Code · Cuvée des Tests 2020, .*2 bouteilles/ }).first().waitFor({ timeout: 5000 });
+});
+
+await cas('R-N1', 'code-barres faux refusé, code inconnu signalé', async () => {
+  await aller('/nouveau');
+  await bouton('Code-barres').click();
+  await champ('OU TAPEZ LES CHIFFRES').fill('3760000000007');
+  await bouton('Chercher').click();
+  await visible('ne semble pas complet');
+  await champ('OU TAPEZ LES CHIFFRES').fill('3760000000017');
+  await bouton('Chercher').click();
+  await visible('inconnu d’Open Food Facts', 10000);
+  await aller('/');
+});
+
 await cas('F47-H1', 'supprimer le vin : bouteilles et notes avec', async () => {
   await p.getByRole('button', { name: /Château Côte-Rôtie 🍷 2018/ }).first().click();
   await bouton('Actions').click();
   await bouton('Supprimer ce vin').click();
   await aller('/');
-  await visible('Aucune bouteille en cave');
+  await p.waitForTimeout(500);
+  const restant = await p.getByRole('button', { name: /Château Côte-Rôtie/ }).locator('visible=true').count();
+  attendu(restant === 0, 'le vin supprimé est encore affiché');
 });
 
 await cas('X-1', 'aucune erreur console ni 5xx', async () => {

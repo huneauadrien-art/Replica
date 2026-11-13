@@ -14,7 +14,7 @@ import { c, police } from '../ui/cave/theme';
 import { confirmer, informer } from '../ui/dialogues';
 import { VERSION_APP } from '../version';
 
-type EtatNas = { app?: string; fiches: Partial<Record<Collection, number>>; version?: string };
+type EtatNas = { app?: string; reconnaissance?: boolean; fiches: Partial<Record<Collection, number>>; version?: string };
 
 const heure = (ms: number) => new Date(ms).toLocaleString('fr-FR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' });
 
@@ -34,12 +34,16 @@ export default function Reglages() {
   const [erreur, setErreur] = useState<string | null>(null);
   const [attente, setAttente] = useState(false);
   const [versionNas, setVersionNas] = useState<string | null>(null);
+  const [lectureIa, setLectureIa] = useState<boolean | null>(null);
   const [restauration, setRestauration] = useState<Donnees | null>(null);
 
   useEffect(() => {
     if (!synchro.serveur) return;
     appelServeur<EtatNas>(synchro.serveur, '/api/etat')
-      .then((e) => setVersionNas(e.version ?? 'ancienne'))
+      .then((e) => {
+        setVersionNas(e.version ?? 'ancienne');
+        setLectureIa(!!e.reconnaissance);
+      })
       .catch(() => setVersionNas(null));
   }, [synchro.serveur, synchro.dernier?.quand]);
 
@@ -105,6 +109,13 @@ export default function Reglages() {
         {synchro.dernier ? <T.texte doux>{`Dernière tentative : ${heure(synchro.dernier.quand)}`}</T.texte> : null}
         <T.texte doux>{`Version de l'app : ${VERSION_APP} · du NAS : ${versionNas ?? '…'}`}</T.texte>
         <T.texte doux>{synchro.enAttente === 0 ? 'Tout est envoyé.' : `${synchro.enAttente} modification(s) en attente d'envoi.`}</T.texte>
+        {lectureIa != null ? (
+          <T.texte doux>
+            {lectureIa
+              ? 'Lecture des étiquettes en photo : activée.'
+              : 'Lecture des étiquettes en photo : pas activée (clé ANTHROPIC_API_KEY absente du fichier du NAS). Le code-barres marche quand même.'}
+          </T.texte>
+        ) : null}
       </CarteCave>
       {versionNas && versionNas !== VERSION_APP && VERSION_APP !== 'dev' ? (
         <Message texte="L'app et le NAS n'ont pas la même version : mettez à jour celui qui est en retard (sur le NAS : arrêter le projet, supprimer l'image, redémarrer)." />

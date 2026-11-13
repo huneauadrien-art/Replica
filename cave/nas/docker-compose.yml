@@ -13,6 +13,9 @@ services:
       # Le code que l'app demandera. Choisissez-en un long, sans espace.
       CODE: "remplacez-par-votre-code"
       TZ: "Europe/Paris"
+      # Facultatif : clé Anthropic pour reconnaître les bouteilles en photo (Claude Sonnet,
+      # environ 2 centimes la photo). Vide : pas de reconnaissance ; le code-barres marche sans clé.
+      ANTHROPIC_API_KEY: ""
     volumes:
       # La cave, les photos d'étiquettes et les sauvegardes quotidiennes, dans le dossier du projet.
       - ./donnees:/donnees

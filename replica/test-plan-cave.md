@@ -3,7 +3,7 @@
 Automatique : `cave/e2e/cave.e2e.mjs` (Playwright, version web servie par le serveur du NAS
 en local) et `cave/src/core/__tests__/cave.test.ts` (vitest, 13 cas de logique).
 Chaque passage échoue sur une erreur de la console ou une réponse 5xx.
-Dernier passage : 2026-11-13, app séparée Ma Cave : **14/14 de bout en bout, 25/25 en vitest**.
+Dernier passage : 2026-11-13, app séparée Ma Cave : **17/17 de bout en bout, 29/29 en vitest**.
 
 | cas | parcours | ce qu'on vérifie | auto | résultat |
 | --- | --- | --- | --- | --- |
@@ -20,6 +20,10 @@ Dernier passage : 2026-11-13, app séparée Ma Cave : **14/14 de bout en bout, 2
 | F42-E1 | filtres | Blanc vide, Rouge rempli | e2e | ok |
 | F47-H1 | supprimer un vin | bouteilles et notes supprimées | e2e | ok |
 | N-1 | relier au NAS (Réglages) | test de connexion, envoi de la cave, le NAS compte 1 vin et 3 bouteilles | e2e | ok |
+| R-1 | photo de l'étiquette | fiche remplie (domaine, millésime, cépages, garde), photo réduite à 1568 px avant envoi | e2e (faux Anthropic) | ok |
+| R-2 | code-barres tapé | trouvé dans Open Food Facts, puis reconnu dans la cave sans appel (×2) | e2e (faux OFF) | ok |
+| R-N1 | code-barres faux / inconnu | refusé (clé de contrôle) / « inconnu d'Open Food Facts » | e2e | ok |
+| R-N2 | pas de clé sur le NAS | 503 « reconnaissance pas activée », Réglages l'indique | à la main (curl) | ok |
 | S-1 | synchro NAS | vins et bouteilles reçus, gardés après redémarrage du serveur | à la main (curl) | ok |
 | S-2 | deux téléphones rangent dans la même case hors ligne | la plus récente reste, l'autre repasse à ranger | vitest | ok |
 | S-3 | garde | jeune → prêt → apogée → vite → passé ; fenêtre saisie prioritaire ; sans millésime | vitest | ok |

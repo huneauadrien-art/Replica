@@ -6,11 +6,14 @@
 //   PORT        port d'écoute (8080 par défaut)
 //   DONNEES     dossier des données et des sauvegardes (/donnees par défaut)
 //   SITE        dossier de la version web (./site par défaut)
+//   ANTHROPIC_API_KEY  facultatif : clé Anthropic pour lire les étiquettes en photo (Claude Sonnet)
 
 import { createHash, timingSafeEqual } from 'node:crypto';
 import { copyFileSync, existsSync, mkdirSync, readdirSync, readFileSync, renameSync, statSync, unlinkSync, writeFileSync } from 'node:fs';
 import { createServer, type IncomingMessage, type ServerResponse } from 'node:http';
 import { extname, join, normalize, resolve } from 'node:path';
+import { ErreurReconnaissance, chercherOff, lireEtiquette, reconnaissanceDisponible } from './ia';
+import { normaliserEan } from '../src/core/reconnaissance';
 import { compter, etatServeurVide, synchroniserServeur, type Changements, type EtatServeur } from '../src/core/sync';
 
 const CODE = process.env.CODE ?? '';
@@ -132,7 +135,7 @@ const serveur = createServer(async (req, res) => {
   try {
     if (url === '/api/etat' && req.method === 'GET') {
       if (!autorise(req)) return json(res, 401, { erreur: "Code d'accès incorrect." });
-      return json(res, 200, { ok: true, app: 'ma-cave', version: VERSION, rev: etat.rev, fiches: compter(etat) });
+      return json(res, 200, { ok: true, app: 'ma-cave', reconnaissance: reconnaissanceDisponible(), version: VERSION, rev: etat.rev, fiches: compter(etat) });
     }
     if (url === '/api/sync' && req.method === 'POST') {
       if (!autorise(req)) return json(res, 401, { erreur: "Code d'accès incorrect." });
@@ -141,6 +144,19 @@ const serveur = createServer(async (req, res) => {
       etat = r.etat;
       if (r.modifie) enregistrer();
       return json(res, 200, { rev: r.rev, recues: r.recues });
+    }
+    if (url === '/api/reconnaitre' && req.method === 'POST') {
+      if (!autorise(req)) return json(res, 401, { erreur: "Code d'accès incorrect." });
+      const { base64, type } = JSON.parse(await lireCorps(req)) as { base64?: string; type?: string };
+      if (!base64) return json(res, 400, { erreur: 'photo vide' });
+      return json(res, 200, await lireEtiquette(base64, type ?? 'image/jpeg'));
+    }
+    const code = url.match(/^\/api\/codebarre\/([^/]+)$/);
+    if (code && req.method === 'GET') {
+      if (!autorise(req)) return json(res, 401, { erreur: "Code d'accès incorrect." });
+      const ean = normaliserEan(decodeURIComponent(code[1]));
+      if (!ean) return json(res, 400, { erreur: 'Ce code-barres ne semble pas valide (8, 12 ou 13 chiffres).' });
+      return json(res, 200, { ean, vin: await chercherOff(ean), source: 'off' });
     }
     const piece = url.match(/^\/api\/pieces\/([^/]+)$/);
     if (piece) {
@@ -167,6 +183,7 @@ const serveur = createServer(async (req, res) => {
     if (url.startsWith('/api/')) return json(res, 404, { erreur: 'inconnu' });
     servirSite(req, res);
   } catch (e) {
+    if (e instanceof ErreurReconnaissance) return json(res, e.statut, { erreur: e.message });
     console.error(e);
     json(res, 500, { erreur: (e as Error).message });
   }

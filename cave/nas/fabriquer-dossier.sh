@@ -18,6 +18,12 @@ npx tsc --noEmit
 npx vitest run
 EXPO_OFFLINE=1 CI=1 EXPO_PUBLIC_VERSION="$VERSION" npx expo export --platform web --output-dir "$CIBLE/app/site"
 npx tsc -p serveur/tsconfig.json --outDir "$CIBLE/app"
+# Le serveur n'a besoin que du SDK Anthropic (lecture des étiquettes) : installé à côté de lui.
+SDK="$(node -p "require('./package.json').dependencies['@anthropic-ai/sdk']")"
+cat > "$CIBLE/app/package.json" <<EOF
+{ "name": "ma-cave-serveur", "private": true, "dependencies": { "@anthropic-ai/sdk": "$SDK" } }
+EOF
+(cd "$CIBLE/app" && npm install --omit=dev --no-audit --no-fund --no-package-lock >/dev/null)
 
 cat > "$CIBLE/docker-compose.yml" <<EOF
 # Ma Cave sur le NAS (UGOS Pro). Projet séparé de Registre Vigne, port 8083.
@@ -39,6 +45,10 @@ services:
       DONNEES: "/donnees"
       SITE: "/app/site"
       VERSION: "$VERSION"
+      # Facultatif : clé Anthropic pour reconnaître les bouteilles en photo (Claude Sonnet,
+      # environ 2 centimes la photo). Vide : la photo est gardée, sans reconnaissance ;
+      # le code-barres (Open Food Facts) marche sans clé.
+      ANTHROPIC_API_KEY: ""
     volumes:
       # L'appli (lecture seule) et vos données (la cave, les photos, les sauvegardes du jour).
       - ./app:/app:ro
@@ -49,8 +59,11 @@ cat > "$CIBLE/LISEZMOI.txt" <<'EOF'
 MA CAVE SUR LE NAS
 ==================
 
-1. Ouvrez docker-compose.yml avec un éditeur de texte et remplacez
-   remplacez-par-votre-code par un code long, sans espace (gardez les guillemets).
+1. Ouvrez docker-compose.yml avec un éditeur de texte (Bloc-notes) :
+   - remplacez remplacez-par-votre-code par un code long, sans espace (gardez les guillemets) ;
+   - pour reconnaître les bouteilles en photo : collez votre clé Anthropic (elle commence
+     par sk-ant-) entre les guillemets de ANTHROPIC_API_KEY. Sans clé, tout marche sauf
+     la lecture des étiquettes. Ne donnez cette clé à personne.
 
 2. Copiez tout ce dossier « ma-cave » sur le NAS, par exemple dans le dossier
    partagé docker : docker/ma-cave
@@ -70,7 +83,8 @@ donnees/sauvegardes). Ne le supprimez pas.
 
 METTRE À JOUR
 Arrêtez le projet, remplacez seulement le sous-dossier « app » par celui de la
-nouvelle version, puis redémarrez. Ne touchez pas à « donnees » ni au code.
+nouvelle version, puis redémarrez. Ne touchez pas à « donnees » ni à docker-compose.yml
+(il contient votre code et votre clé), sauf si la nouvelle version vous le demande.
 EOF
 
 (cd "$SORTIE" && rm -f ma-cave.zip && python3 -c "

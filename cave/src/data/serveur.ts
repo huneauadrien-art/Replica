@@ -1,6 +1,8 @@
 // Appels au serveur du NAS.
 
 import { Platform } from 'react-native';
+import { versBase64 } from '../core/base64';
+import type { Vin } from '../core/types';
 
 export type Serveur = { url: string; code: string };
 
@@ -17,9 +19,9 @@ export function adresseProposee(): string {
   return /github\.io$/.test(location.hostname) ? '' : location.origin;
 }
 
-export async function appelServeur<T>(s: Serveur, chemin: string, corps?: unknown): Promise<T> {
+export async function appelServeur<T>(s: Serveur, chemin: string, corps?: unknown, delaiMs = 20_000): Promise<T> {
   const controle = new AbortController();
-  const delai = setTimeout(() => controle.abort(), 20_000);
+  const delai = setTimeout(() => controle.abort(), delaiMs);
   let reponse: Response;
   try {
     reponse = await fetch(s.url + chemin, {
@@ -34,7 +36,14 @@ export async function appelServeur<T>(s: Serveur, chemin: string, corps?: unknow
     clearTimeout(delai);
   }
   if (reponse.status === 401) throw new Error("Code d'accès refusé par le NAS.");
-  if (!reponse.ok) throw new Error(`Le NAS a répondu une erreur (${reponse.status}).`);
+  if (!reponse.ok) {
+    // Le serveur explique l'erreur en français quand il le peut.
+    const message = await reponse
+      .json()
+      .then((j: { erreur?: unknown }) => (typeof j?.erreur === 'string' ? j.erreur : null))
+      .catch(() => null);
+    throw new Error(message ?? `Le NAS a répondu une erreur (${reponse.status}).`);
+  }
   try {
     return (await reponse.json()) as T;
   } catch {
@@ -54,3 +63,13 @@ export async function telechargerPiece(s: Serveur, id: string): Promise<Uint8Arr
   if (!reponse.ok) throw new Error(`Le NAS a répondu une erreur (${reponse.status}).`);
   return new Uint8Array(await reponse.arrayBuffer());
 }
+
+export type Reconnaissance = { vin: Partial<Vin>; confiance?: 'haute' | 'moyenne' | 'faible'; remarque?: string; source: 'ia' };
+
+/** Envoie la photo de l'étiquette au NAS, qui la fait lire par l'IA (jusqu'à 2 minutes). */
+export const reconnaitreEtiquette = (s: Serveur, octets: Uint8Array) =>
+  appelServeur<Reconnaissance>(s, '/api/reconnaitre', { base64: versBase64(octets), type: 'image/jpeg' }, 120_000);
+
+/** Cherche un code-barres dans Open Food Facts, par le NAS. `vin` null : produit inconnu. */
+export const chercherCodeBarre = (s: Serveur, ean: string) =>
+  appelServeur<{ ean: string; vin: Partial<Vin> | null }>(s, `/api/codebarre/${encodeURIComponent(ean)}`, undefined, 30_000);

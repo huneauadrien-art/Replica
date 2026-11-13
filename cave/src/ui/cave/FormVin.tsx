@@ -5,9 +5,11 @@ import { ActivityIndicator, Pressable, Text, View } from 'react-native';
 import { COULEURS, fenetreGarde } from '../../core/cave';
 import type { CouleurVin, PieceJointe, Vin } from '../../core/types';
 import { photographier } from '../../data/fichiers';
+import { chercherCodeBarre, reconnaitreEtiquette } from '../../data/serveur';
 import { nouvelId, useStore } from '../../data/store';
 import { informer } from '../dialogues';
 import { BoutonCave, CarteCave, ChampCave, Crans, PuceCave, Surtitre, T, Vignette } from './kit';
+import { Scanner } from './Scanner';
 import { nombre, usePhoto } from './outils';
 import { c, couleurVin, police } from './theme';
 
@@ -28,7 +30,7 @@ export const lireCepages = (t: string) =>
 const ecrireCepages = (l?: Vin['cepages']) => (l ?? []).map((x) => (x.pct != null ? `${x.nom} ${x.pct}` : x.nom)).join(', ');
 
 export function FormVin({ initial, nouveau, onValider }: { initial?: Vin; nouveau: boolean; onValider: (s: SaisieVin) => void }) {
-  const { ajouterPiece, envoyerPiece } = useStore();
+  const { ajouterPiece, envoyerPiece, synchro, donnees } = useStore();
   const [domaine, setDomaine] = useState(initial?.domaine ?? '');
   const [cuvee, setCuvee] = useState(initial?.cuvee ?? '');
   const [millesime, setMillesime] = useState(initial?.millesime ? String(initial.millesime) : '');
@@ -50,7 +52,79 @@ export function FormVin({ initial, nouveau, onValider }: { initial?: Vin; nouvea
   const [garde, setGarde] = useState({ pret: texte(g?.pret), apogeeDebut: texte(g?.apogeeDebut), apogeeFin: texte(g?.apogeeFin), fin: texte(g?.fin) });
   const [accords, setAccords] = useState(initial?.accords ?? '');
   const [notes, setNotes] = useState(initial?.notes ?? '');
+  const [ean, setEan] = useState(initial?.ean);
+  const [lecture, setLecture] = useState<string | null>(null);
+  const [info, setInfo] = useState<{ texte: string; grave?: boolean } | null>(null);
+  const [scanner, setScanner] = useState(false);
   const apercu = usePhoto(photo);
+
+  /** Remplit le formulaire avec une fiche reconnue. `seulementVides` : ne touche pas à ce qui est déjà saisi. */
+  const appliquer = (v: Partial<Vin>, seulementVides = false) => {
+    const si = <T,>(actuel: T, vide: boolean, nouveau: T | undefined, poser: (x: T) => void) => {
+      if (nouveau !== undefined && (!seulementVides || vide)) poser(nouveau);
+    };
+    si(domaine, !domaine.trim(), v.domaine, setDomaine);
+    si(cuvee, !cuvee.trim(), v.cuvee, setCuvee);
+    si(millesime, !millesime.trim(), v.millesime != null ? String(v.millesime) : undefined, setMillesime);
+    si(appellation, !appellation.trim(), v.appellation, setAppellation);
+    si(region, !region.trim(), v.region, setRegion);
+    if (v.couleur && !seulementVides) setCouleur(v.couleur);
+    else if (v.couleur && seulementVides && !domaine.trim()) setCouleur(v.couleur);
+    si(cepages, !cepages.trim(), v.cepages ? ecrireCepages(v.cepages) : undefined, setCepages);
+    if (v.profil && (!seulementVides || !Object.keys(profil).length)) setProfil(v.profil);
+    si(aromes, !aromes.trim(), v.aromes?.join(', '), setAromes);
+    si(tempMin, !tempMin.trim(), v.tempMin != null ? texte(v.tempMin) : undefined, setTempMin);
+    si(tempMax, !tempMax.trim(), v.tempMax != null ? texte(v.tempMax) : undefined, setTempMax);
+    si(carafage, !carafage.trim(), v.carafageH != null ? texte(v.carafageH) : undefined, setCarafage);
+    if (v.garde && (!seulementVides || !garde.pret.trim()))
+      setGarde({ pret: texte(v.garde.pret), apogeeDebut: texte(v.garde.apogeeDebut), apogeeFin: texte(v.garde.apogeeFin), fin: texte(v.garde.fin) });
+    si(accords, !accords.trim(), v.accords, setAccords);
+    if (v.ean) setEan(v.ean);
+    if (v.garde || v.cepages || v.profil || v.aromes) setPlus(true);
+  };
+
+  const lireEtiquette = async (octets: Uint8Array) => {
+    if (!synchro.serveur) return setInfo({ texte: 'Pour reconnaître la bouteille, reliez l’appli à votre NAS (roue ⚙ sur l’écran d’accueil). En attendant, remplissez la fiche à la main.' });
+    setLecture("Lecture de l'étiquette…");
+    setInfo(null);
+    try {
+      const r = await reconnaitreEtiquette(synchro.serveur, octets);
+      appliquer(r.vin);
+      const doute = r.confiance === 'faible' ? ' La lecture est incertaine : vérifiez bien.' : r.confiance === 'moyenne' ? ' Vérifiez le millésime et la cuvée.' : '';
+      setInfo({ texte: `Vin reconnu : vérifiez la fiche avant d'enregistrer.${doute}${r.remarque ? ` ${r.remarque}` : ''}` });
+    } catch (e) {
+      setInfo({ texte: `${(e as Error).message} Vous pouvez remplir la fiche à la main.`, grave: true });
+    } finally {
+      setLecture(null);
+    }
+  };
+
+  const codeLu = async (code: string) => {
+    setScanner(false);
+    setEan(code);
+    // Déjà dans la cave : rien à chercher.
+    const connu = donnees.vins.find((v) => v.ean === code);
+    if (connu) {
+      const { id: _id, maj: _maj, photo: photoConnue, ...reste } = connu;
+      appliquer(reste);
+      if (photoConnue && !photo) setPhoto(photoConnue);
+      return setInfo({ texte: 'Ce vin est déjà dans votre cave : la bouteille sera ajoutée à sa fiche.' });
+    }
+    if (!synchro.serveur) return setInfo({ texte: `Code ${code} gardé. Pour chercher le vin, reliez l’appli à votre NAS (roue ⚙).` });
+    setLecture('Recherche du code-barres…');
+    setInfo(null);
+    try {
+      const r = await chercherCodeBarre(synchro.serveur, code);
+      if (r.vin) {
+        appliquer(r.vin, true);
+        setInfo({ texte: 'Trouvé dans Open Food Facts (souvent incomplet) : prenez aussi l’étiquette en photo pour la garde, les cépages et les accords.' });
+      } else setInfo({ texte: `Code ${code} inconnu d’Open Food Facts. Prenez l’étiquette en photo : il sera gardé pour reconnaître ce vin la prochaine fois.` });
+    } catch (e) {
+      setInfo({ texte: (e as Error).message, grave: true });
+    } finally {
+      setLecture(null);
+    }
+  };
 
   const prendrePhoto = async (source: 'camera' | 'galerie') => {
     try {
@@ -62,6 +136,8 @@ export function FormVin({ initial, nouveau, onValider }: { initial?: Vin; nouvea
       await ajouterPiece(id, p.octets);
       envoyerPiece(id);
       setPhoto({ id, nom: p.nom, type: 'image/jpeg', taille: p.octets.length });
+      setChargement(false);
+      await lireEtiquette(p.octets);
     } catch (e) {
       informer('Pas de photo', (e as Error).message);
     } finally {
@@ -103,6 +179,7 @@ export function FormVin({ initial, nouveau, onValider }: { initial?: Vin; nouvea
       garde: gardeOk ? { pret, apogeeDebut, apogeeFin, fin } : undefined,
       accords: propre(accords),
       notes: propre(notes),
+      ean,
     };
     onValider({ vin, quantite, prix: nombre(prix) });
   };
@@ -113,19 +190,24 @@ export function FormVin({ initial, nouveau, onValider }: { initial?: Vin; nouvea
         <View style={{ flexDirection: 'row', gap: 14, alignItems: 'center' }}>
           <Vignette couleur={couleur} photo={apercu} taille={84} />
           <View style={{ flex: 1, gap: 8 }}>
-            <T.texte doux>{photo ? 'Photo de l’étiquette' : 'Une photo de l’étiquette aide à reconnaître la bouteille.'}</T.texte>
-            {chargement ? (
+            <T.texte doux>{photo ? 'Photo de l’étiquette' : 'Photographiez l’étiquette : la fiche se remplit toute seule.'}</T.texte>
+            {chargement || lecture ? (
               <ActivityIndicator color={c.or} />
             ) : (
               <View style={{ flexDirection: 'row', gap: 8, flexWrap: 'wrap' }}>
                 <PuceCave titre="Photographier" onPress={() => prendrePhoto('camera')} />
                 <PuceCave titre="Galerie" onPress={() => prendrePhoto('galerie')} />
+                <PuceCave titre="Code-barres" onPress={() => setScanner(true)} />
                 {photo ? <PuceCave titre="Retirer" onPress={() => setPhoto(undefined)} /> : null}
               </View>
             )}
           </View>
         </View>
+        {lecture ? <T.mono>{lecture}</T.mono> : null}
+        {info ? <Text style={{ fontFamily: police.sans, fontSize: 14, lineHeight: 20, color: info.grave ? c.rougeTexte : c.orTexte }}>{info.texte}</Text> : null}
+        {ean ? <T.mono couleur={c.doux} taille={12}>{`Code-barres ${ean}`}</T.mono> : null}
       </CarteCave>
+      <Scanner visible={scanner} onCode={(x) => void codeLu(x)} onFermer={() => setScanner(false)} />
 
       <ChampCave label="DOMAINE OU CHÂTEAU" value={domaine} onChangeText={setDomaine} placeholder="Domaine des Tilleuls" autoCapitalize="words" />
       <ChampCave label="CUVÉE" value={cuvee} onChangeText={setCuvee} placeholder="Facultatif" />

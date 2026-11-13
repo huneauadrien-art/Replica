@@ -25,6 +25,15 @@ sur le NAS et on crée le projet Docker dessus. Il utilise l'image officielle `n
 Si le NAS répond « denied » en téléchargeant l'image : sur GitHub, **Packages** ›
 `ma-cave` › **Package settings** › **Change visibility** › Public.
 
+## Reconnaître les bouteilles
+
+- **Photo de l'étiquette** : le NAS l'envoie à Claude Sonnet (Anthropic), qui renvoie la fiche
+  (domaine, millésime, appellation, cépages, garde, accords…) ; on corrige puis on enregistre.
+  Il faut une clé Anthropic (crédit prépayé sur platform.claude.com, environ 2 centimes la
+  photo) dans `ANTHROPIC_API_KEY` du `docker-compose.yml` du NAS. Sans clé, tout le reste marche.
+- **Code-barres** : cherché dans Open Food Facts (gratuit, souvent incomplet). Un vin déjà
+  dans la cave est reconnu par son code-barres sans rien demander à Internet.
+
 ## Relier les téléphones
 
 Dans l'app : bouton ⚙ (Réglages) › adresse `http://<adresse-du-nas>:8083` et le code ›

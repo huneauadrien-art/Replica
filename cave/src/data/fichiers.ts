@@ -42,19 +42,34 @@ export function typeDepuisNom(nom: string): string {
   return ext === 'pdf' ? 'application/pdf' : ext === 'png' ? 'image/png' : ext === 'jpg' || ext === 'jpeg' ? 'image/jpeg' : ext === 'xml' ? 'application/xml' : 'application/octet-stream';
 }
 
-/** Prend une photo (ou en choisit une dans la galerie) et renvoie ses octets en JPEG. */
+/** Côté le plus long d'une photo d'étiquette : assez pour la lire, assez léger pour l'envoyer. */
+const COTE_MAX = 1568;
+
+const lireOctets = async (uri: string) =>
+  new Uint8Array(Platform.OS === 'web' || uri.startsWith('data:') || uri.startsWith('blob:') ? await (await fetch(uri)).arrayBuffer() : await new File(uri).arrayBuffer());
+
+/** Prend une photo (ou en choisit une dans la galerie), la réduit, et renvoie ses octets en JPEG. */
 export async function photographier(source: 'camera' | 'galerie'): Promise<{ nom: string; octets: Uint8Array } | null> {
   const ImagePicker = await import('expo-image-picker');
   if (source === 'camera' && Platform.OS !== 'web') {
     const p = await ImagePicker.requestCameraPermissionsAsync();
     if (!p.granted) throw new Error("L'app n'a pas accès à l'appareil photo (réglages du téléphone).");
   }
-  const options = { mediaTypes: ['images' as const], quality: 0.6 };
+  const options = { mediaTypes: ['images' as const], quality: 0.8 };
   const r = source === 'camera' ? await ImagePicker.launchCameraAsync(options) : await ImagePicker.launchImageLibraryAsync(options);
   if (r.canceled || !r.assets?.[0]) return null;
   const a = r.assets[0];
-  const tampon = a.file ? await a.file.arrayBuffer() : Platform.OS === 'web' ? await (await fetch(a.uri)).arrayBuffer() : await new File(a.uri).arrayBuffer();
-  return { nom: a.fileName ?? 'photo.jpg', octets: new Uint8Array(tampon) };
+  const nom = (a.fileName ?? 'etiquette').replace(/\.[a-z0-9]+$/i, '') + '.jpg';
+  try {
+    const { ImageManipulator, SaveFormat } = await import('expo-image-manipulator');
+    const ctx = ImageManipulator.manipulate(a.uri);
+    if (Math.max(a.width, a.height) > COTE_MAX) ctx.resize(a.width >= a.height ? { width: COTE_MAX } : { height: COTE_MAX });
+    const image = await (await ctx.renderAsync()).saveAsync({ compress: 0.7, format: SaveFormat.JPEG });
+    return { nom, octets: await lireOctets(image.uri) };
+  } catch {
+    // Réduction impossible : on garde la photo telle quelle.
+    return { nom, octets: a.file ? new Uint8Array(await a.file.arrayBuffer()) : await lireOctets(a.uri) };
+  }
 }
 
 /** Ouvre une pièce jointe : nouvel onglet sur le web, aperçu / partage sur téléphone. */

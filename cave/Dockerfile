@@ -9,7 +9,9 @@ COPY . ./
 RUN npx tsc --noEmit \
  && npx vitest run \
  && EXPO_OFFLINE=1 EXPO_PUBLIC_VERSION=$VERSION npx expo export --platform web --output-dir /out/site \
- && npx tsc -p serveur/tsconfig.json --outDir /out
+ && npx tsc -p serveur/tsconfig.json --outDir /out \
+ && node -e "const p=require('./package.json');require('fs').writeFileSync('/out/package.json',JSON.stringify({name:'ma-cave-serveur',private:true,dependencies:{'@anthropic-ai/sdk':p.dependencies['@anthropic-ai/sdk']}}))" \
+ && cd /out && npm install --omit=dev --no-audit --no-fund --no-package-lock
 
 FROM node:22-bookworm-slim
 ARG VERSION=dev
