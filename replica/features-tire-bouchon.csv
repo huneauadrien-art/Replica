@@ -1,0 +1,39 @@
+feature,area,priority,original,clone,notes
+Ajouter une bouteille à la main (domaine cuvée appellation millésime couleur),entrée,must,yes,no,S45 sans IA
+Quantité et prix payé par bouteille,entrée,must,yes,no,« ×2 » « 13 sans prix »
+Fenêtre de garde calculée (prêt / apogée / à boire vite),garde,must,yes,no,table maison couleur × région ; corrigeable
+Jauge de garde de la cave,garde,must,yes,no,S40 Prêt / Apogée / À boire vite
+Carte « À boire ce soir »,garde,must,yes,no,S40
+Liste « Boire avant » (urgences),garde,must,yes,no,S41 liseré rouge
+Créer ses meubles (rangées × colonnes),plan,must,yes,no,S43
+Plan de cave en grille colorée par couleur du vin,plan,must,yes,no,S42
+Ranger : toucher une case libre,plan,must,yes,no,S46
+Bac « À ranger »,plan,must,yes,no,
+Emplacement affiché partout (R2 · C5) et retrouver la case,plan,must,yes,no,F42
+Fiche vin (frise d'apogée service cépages),fiche,must,yes,no,S47
+Déguster : sortir la bouteille et libérer la case,dégustation,must,yes,no,F43
+Visuel sombre façon Tire-Bouchon (couleurs polices composants),visuel,must,yes,no,demande de l'utilisateur ; sans nom ni logo
+Filtres Tout / Prêtes / Rouge / Blanc / Rosé,liste,should,yes,no,
+Valeur de la cave (≈ €),liste,should,yes,no,
+Note de dégustation (note robe arômes avec qui photo),dégustation,should,yes,no,
+Carnet de dégustation,dégustation,should,yes,no,
+Photo de l'étiquette jointe à la bouteille,entrée,should,yes,no,pièces jointes existantes
+Lecture de l'étiquette par IA,entrée,should,yes,no,clé API + Internet via le NAS
+Scan en rafale (carton entier),entrée,should,yes,no,F41
+Alertes d'apogée (notification),garde,should,yes,no,notifications locales
+Profil gustatif et arômes,fiche,should,yes,no,saisie manuelle
+Synchronisation entre téléphones par le NAS,données,should,no,no,ajout : déjà dans Registre Vigne
+Export de la cave (CSV),données,should,yes,no,
+Sommelier : accord mets-vins dans sa cave,sommelier,could,yes,no,IA ou règles simples
+Statistiques par région couleur millésime,liste,could,yes,no,
+Import Excel / CSV,données,could,yes,no,assistant S54 simplifié
+Alertes par email,garde,could,yes,no,
+Mes cuvées du domaine (stock des vins produits),vigneron,could,no,no,ajout : lien avec les parcelles et le registre
+Mode hors ligne avec analyse différée,entrée,could,yes,no,déjà hors ligne d'abord
+Vue Liste / Plan en bascule,plan,could,yes,no,
+Mettre une case en avant depuis la fiche,plan,could,yes,no,
+Catalogue de 190 000 vins,catalogue,skip,yes,no,base qui leur appartient
+Guide des vins (régions cépages appellations),contenu,skip,yes,no,contenu rédigé par eux
+Amis et caves partagées,social,skip,yes,no,réseau ; inutile pour un domaine
+Abonnement Premium,paiement,skip,yes,no,app personnelle
+Nom logo icône photos et textes de Tire-Bouchon,marque,skip,yes,no,leur propriété

@@ -1,0 +1,415 @@
+<title>Recon Tire-Bouchon</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Spectral:ital,wght@0,400;0,500;1,400&display=swap">
+<style>
+/* Mise en page : une colonne de lecture, maquettes de téléphone en rangée qui défile. Ambiance cave, thème sombre seul (comme l'original). */
+:root{
+  color-scheme:dark;
+  --bg:#1e1518; --deep:#1b1316; --card:#251b1e; --elev:#2a1b1f; --bg2:#2c2023; --bg3:#3d2e31; --hover:#4e3b3f;
+  --line:#3a2c2f; --line2:#4e3b3f;
+  --ink:#f2e8dc; --ink2:#d4c4b4; --mute:#a08e7e;
+  --gold:#c4a882; --gold-hi:#d4b896; --gold-lo:#a08968; --gold-ink:#e8d4b8;
+  --red:#e5484d; --red-hi:#f25f63; --burgundy:#4a1c24; --burgundy-deep:#2d1118;
+  --s-pret:#e8d9b8; --s-apo:#e8b54a; --s-vite:#e58747;
+  --c-rouge:#4a1c24; --c-blanc:#857b6f; --c-bulle:#807d5c; --c-liq:#806b3c; --c-porto:#4e2919;
+  --serif:"Spectral",Georgia,"Times New Roman",serif;
+  --sans:"Hanken Grotesk",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"JetBrains Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font:16px/1.55 var(--sans);margin:0}
+.wrap{max-width:1080px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:40px 80px}
+.eyebrow{font:600 12px/1 var(--sans);letter-spacing:.25em;text-transform:uppercase;color:var(--gold-lo)}
+h1{font:400 clamp(34px,6vw,58px)/1.08 var(--serif);margin:14px 0 14px;text-wrap:balance;max-width:20ch}
+h1 em{color:var(--gold-ink)}
+h2{font:400 clamp(26px,4vw,36px)/1.15 var(--serif);margin:0 0 6px;text-wrap:balance}
+.lede{color:var(--ink2);max-width:62ch;margin:0}
+.note{color:var(--mute);font-size:14px;max-width:70ch}
+section{margin-top:72px}
+.head{display:flex;flex-direction:column;gap:10px;margin-bottom:24px}
+.stats{display:flex;flex-wrap:wrap;gap:28px;margin-top:28px}
+.stat b{display:block;font:700 40px/1 var(--sans);letter-spacing:-.02em}
+.stat span{color:var(--mute);font-size:14px}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{border:1px solid var(--line2);border-radius:999px;padding:6px 14px;font-size:14px;color:var(--ink2);white-space:nowrap}
+.chip.on{background:var(--gold);border-color:var(--gold);color:var(--bg)}
+.loc{font:500 13px/1 var(--mono);color:var(--gold-hi);border:1px solid var(--gold-lo);border-radius:999px;padding:8px 12px;display:inline-flex;gap:8px;align-items:center;white-space:nowrap}
+.loc.dash{border-style:dashed;color:var(--mute);border-color:var(--line2)}
+
+/* rangée de téléphones */
+.phones{display:flex;gap:22px;overflow-x:auto;padding:6px 2px 18px;scroll-snap-type:x mandatory}
+.phones>div{flex:0 0 300px;scroll-snap-align:start}
+.phone{background:var(--bg);border:1px solid var(--line2);border-radius:38px;padding:22px 16px 0;position:relative;height:620px;overflow:hidden;box-shadow:0 30px 60px -30px #000}
+.phone .cap{font:500 12px/1 var(--mono);color:var(--mute);text-align:center;margin-top:10px}
+.tabbar{position:absolute;left:10px;right:10px;bottom:12px;height:62px;border-radius:999px;background:var(--deep);border:1px solid var(--line);display:grid;grid-template-columns:repeat(5,1fr);align-items:center;justify-items:center;font-size:10px;color:var(--mute)}
+.tabbar .t{display:flex;flex-direction:column;align-items:center;gap:3px}
+.tabbar .t.on{color:var(--gold-ink)}
+.tabbar svg{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
+.tabbar .fab{width:54px;height:54px;border-radius:50%;background:var(--red);display:grid;place-items:center;color:#fff;box-shadow:0 6px 20px -4px var(--red);margin-top:-18px}
+.big{font:700 40px/1 var(--sans);letter-spacing:-.02em}
+.sub{color:var(--mute);font-size:13px;line-height:1.35}
+.seg{display:grid;grid-template-columns:1fr 1fr;background:var(--deep);border:1px solid var(--line);border-radius:16px;padding:4px;margin:14px 0;font-size:14px;text-align:center}
+.seg span{padding:9px;border-radius:12px;color:var(--ink2)}
+.seg .on{background:var(--ink);color:var(--bg);font-weight:600}
+.card{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:14px}
+.tonight .eyebrow{font-family:var(--mono);font-weight:500;color:var(--gold);letter-spacing:.2em;font-size:11px}
+.wine{display:flex;gap:12px;align-items:center}
+.bottle{flex:0 0 38px;height:56px;border-radius:8px;background:var(--bg2);display:grid;place-items:end center;padding-bottom:4px}
+.bottle i{display:block;width:12px;height:42px;border-radius:5px 5px 3px 3px;background:var(--b,var(--c-rouge));position:relative}
+.bottle i::before{content:"";position:absolute;left:3px;right:3px;top:-8px;height:10px;border-radius:2px;background:inherit}
+.bottle i::after{content:"";position:absolute;left:1px;right:1px;top:16px;height:12px;background:var(--ink2);opacity:.85;border-radius:1px}
+.wname{font:400 18px/1.2 var(--serif)}
+.wname.sans{font:600 14px/1.25 var(--sans)}
+.btn{border-radius:16px;padding:12px 16px;font:600 15px/1 var(--sans);text-align:center}
+.btn.cream{background:var(--ink);color:var(--bg)}
+.btn.red{background:var(--red);color:#fff;box-shadow:0 8px 20px -10px var(--red)}
+.btn.ghost{border:1px solid var(--line2);color:var(--ink)}
+.gauge{display:flex;gap:3px;height:8px;margin:16px 0 8px}
+.gauge i{border-radius:4px}
+.legend{display:flex;gap:12px;font-size:12px;color:var(--mute)}
+.legend span::before{content:"";display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--d);margin-right:5px}
+.legend b{color:var(--ink);font-weight:500;margin-left:4px}
+.row{display:flex;gap:10px;align-items:center;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:10px;margin-top:8px}
+.row .grow{flex:1;min-width:0}
+.row .grow div{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.row .x{font:500 12px var(--mono);color:var(--mute)}
+.row.urgent{border-left:3px solid var(--red)}
+.row .due{font:500 13px var(--mono);color:var(--red-hi)}
+
+/* plan */
+.plan{display:grid;grid-template-columns:22px repeat(4,1fr);gap:6px;font:500 11px/1 var(--mono);color:var(--mute);align-items:center}
+.plan .h{text-align:center}
+.cell{aspect-ratio:1/1.05;max-width:100%;border-radius:10px;background:var(--c,var(--c-rouge));border:1px solid #ffffff14;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:4px;text-align:center;padding:4px;color:var(--ink);font:600 9.5px/1.15 var(--sans)}
+.cell small{font:500 9px var(--mono);color:var(--ink2)}
+.cell.empty{background:none;border:1.5px dashed var(--line2)}
+.cell.hit{outline:2px solid var(--gold-hi);outline-offset:2px}
+
+/* fiche */
+.topbar{display:flex;align-items:baseline;gap:8px;border-bottom:1px solid var(--line);padding-bottom:12px;margin-bottom:14px}
+.topbar .yr{font:500 15px var(--mono);color:var(--gold-ink)}
+.timeline{position:relative;height:4px;background:var(--bg3);border-radius:2px;margin:18px 0 8px}
+.timeline .win{position:absolute;top:0;bottom:0;background:var(--gold-hi);border-radius:2px}
+.timeline .now{position:absolute;top:-5px;width:3px;height:14px;background:var(--red);border-radius:2px}
+.tl-l{display:flex;justify-content:space-between;font:500 11px var(--mono);color:var(--mute)}
+.tl-l .g{color:var(--gold-ink)}
+.slider{margin:10px 0}
+.slider .lb{display:flex;justify-content:space-between;font-size:12px;color:var(--mute)}
+.slider .lb b{color:var(--ink);font-weight:600}
+.slider .tr{height:4px;background:var(--bg3);border-radius:2px;position:relative;margin-top:7px}
+.slider .tr i{position:absolute;top:-5px;width:14px;height:14px;border-radius:50%;background:var(--gold-hi);border:2px solid var(--bg);margin-left:-7px}
+.service{display:grid;grid-template-columns:repeat(3,1fr);border:1px solid var(--line);border-radius:16px;padding:12px 0;text-align:center}
+.service div+div{border-left:1px solid var(--line)}
+.service b{display:block;font:500 17px var(--mono);color:var(--gold-ink)}
+.service span{font:600 9px var(--sans);letter-spacing:.18em;color:var(--mute)}
+.cep{display:flex;align-items:center;gap:8px;font-size:13px;margin-top:6px;background:var(--card);border-radius:10px;padding:8px 10px}
+.cep .bar{flex:1;height:6px;background:var(--bg3);border-radius:3px;overflow:hidden}
+.cep .bar i{display:block;height:100%;background:linear-gradient(90deg,#921519,#ba0715)}
+.cep .pc{font:500 12px var(--mono);color:#ff6568;width:32px;text-align:right}
+.bottombar{position:absolute;left:12px;right:12px;bottom:14px;display:grid;grid-template-columns:1fr 1.4fr;gap:10px}
+.aroma::before{content:"";display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--d);margin-right:6px}
+
+/* sommelier */
+.score{flex:0 0 52px;height:52px;border-radius:50%;border:2px solid var(--gold);display:grid;place-items:center;font:600 18px var(--sans)}
+.it{font:italic 400 14px/1.45 var(--serif);color:var(--ink2)}
+.input{border:1px solid var(--line2);border-radius:14px;padding:11px 12px;font-size:14px;color:var(--ink2);background:var(--deep)}
+
+/* nuancier */
+.swatches{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px}
+.sw{border:1px solid var(--line);border-radius:16px;overflow:hidden;background:var(--card)}
+.sw i{display:block;height:64px;background:var(--c)}
+.sw div{padding:10px 12px;font-size:13px}
+.sw code{font:500 12px var(--mono);color:var(--gold-ink)}
+.type{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px}
+.type .card{padding:20px}
+.type .spec{font-size:30px;line-height:1.15;margin:10px 0 8px}
+
+/* tableaux */
+.tbl{overflow-x:auto;border:1px solid var(--line);border-radius:16px}
+table{border-collapse:collapse;width:100%;font-size:14px;min-width:640px}
+th{font:600 11px var(--sans);letter-spacing:.18em;text-transform:uppercase;color:var(--gold-lo);text-align:left;padding:12px 14px;background:var(--deep)}
+td{padding:11px 14px;border-top:1px solid var(--line);vertical-align:top;color:var(--ink2)}
+td:first-child{font:500 13px var(--mono);color:var(--gold-ink);white-space:nowrap}
+td b{color:var(--ink);font-weight:600}
+.flows{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:12px}
+.flow h3{font:400 20px/1.2 var(--serif);margin:6px 0 10px}
+.steps{display:flex;flex-wrap:wrap;gap:6px;align-items:center;font:500 12px var(--mono);color:var(--ink2)}
+.steps span{background:var(--bg2);border-radius:8px;padding:5px 8px}
+.steps em{color:var(--gold-lo);font-style:normal}
+.flow p{font-size:13px;color:var(--mute);margin:10px 0 0}
+.clicks{font:500 12px var(--mono);color:var(--gold)}
+.split{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:12px}
+.split h3{font:400 21px/1.2 var(--serif);margin:4px 0 8px}
+.split ul{margin:0;padding-left:18px;color:var(--ink2);font-size:14px}
+.split li+li{margin-top:6px}
+.pill{display:inline-block;font:600 11px var(--sans);letter-spacing:.18em;text-transform:uppercase;border:1px solid var(--gold-lo);color:var(--gold-ink);border-radius:999px;padding:5px 10px}
+.size{display:flex;gap:20px;align-items:center;flex-wrap:wrap}
+.size .letter{width:96px;height:96px;border-radius:50%;border:2px solid var(--gold);display:grid;place-items:center;font:400 52px/1 var(--serif);color:var(--gold-ink)}
+.mx{display:flex;flex-wrap:wrap;gap:10px;margin-top:12px}
+.mx div{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px 16px;min-width:110px}
+.mx b{display:block;font:700 26px/1 var(--sans)}
+.mx span{font-size:12px;color:var(--mute)}
+footer{margin-top:72px;border-top:1px solid var(--line);padding-top:20px;font-size:13px;color:var(--mute)}
+footer a{color:var(--gold-hi)}
+a{color:var(--gold-hi)}
+:focus-visible{outline:2px solid var(--gold-hi);outline-offset:2px}
+@media (max-width:520px){.phones>div{flex-basis:282px}}
+</style>
+
+<div class="wrap">
+
+<header>
+  <div class="eyebrow">Carte de reconnaissance · 13 novembre 2026</div>
+  <h1>La cave à vin de <em>Tire-Bouchon</em>, démontée écran par écran</h1>
+  <p class="lede">Ce qu'elle fait, comment on s'y déplace, et son visuel relevé au plus près, pour en refaire une à vous dans Registre Vigne. Document de travail, sans lien avec l'éditeur. Les maquettes ci-dessous sont redessinées en code avec des vins inventés.</p>
+  <div class="stats">
+    <div class="stat"><b>18</b><span>écrans relevés</span></div>
+    <div class="stat"><b>8</b><span>parcours</span></div>
+    <div class="stat"><b>7</b><span>types de données</span></div>
+    <div class="stat"><b>4</b><span>gestes, de la photo<br>à la bouteille rangée</span></div>
+  </div>
+</header>
+
+<section>
+  <div class="head">
+    <div class="eyebrow">Les écrans clés, redessinés</div>
+    <h2>Quatre écrans font toute l'app</h2>
+    <p class="note">Faites défiler de côté. Les couleurs, polices, rayons et proportions sont ceux relevés sur l'original.</p>
+  </div>
+  <div class="phones">
+
+    <!-- S40 Ma cave -->
+    <div>
+    <div class="phone" aria-label="Maquette : Ma cave">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start">
+        <div>
+          <div class="eyebrow" style="color:var(--gold)">Bonsoir</div>
+          <div style="display:flex;gap:10px;align-items:baseline;margin-top:10px"><span class="big">47</span><span class="sub">bouteilles · 39 prêtes<br>≈ 1 180 € · 6 sans prix</span></div>
+        </div>
+        <span class="btn ghost" style="font-size:12px;padding:9px 10px">Mes meubles</span>
+      </div>
+      <div class="seg"><span class="on">Liste</span><span>Plan</span></div>
+      <div class="card tonight">
+        <div class="eyebrow">À boire ce soir</div>
+        <div class="wine" style="margin-top:10px">
+          <div class="bottle"><i></i></div>
+          <div style="min-width:0"><div class="wname" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Domaine des Tilleuls</div><div class="sub">Saint-Émilion · Bordeaux</div><div style="font-size:13px;margin-top:4px">À son apogée, parfait maintenant.</div></div>
+        </div>
+        <div style="margin:12px 0"><span class="loc">◎ Cave du bas · R1 · C3 ›</span></div>
+        <div style="display:flex;gap:10px;align-items:center"><span class="btn cream" style="flex:1">Voir la bouteille</span><span style="font-size:14px;color:var(--ink2)">12 autres ›</span></div>
+      </div>
+      <div class="gauge"><i style="flex:8;background:var(--s-pret)"></i><i style="flex:31;background:var(--s-apo)"></i><i style="flex:3;background:var(--s-vite)"></i></div>
+      <div class="legend"><span style="--d:var(--s-pret)">Prêt<b>8</b></span><span style="--d:var(--s-apo)">Apogée<b>31</b></span><span style="--d:var(--s-vite)">À boire vite<b>3</b></span></div>
+      <div class="chips" style="margin-top:14px;flex-wrap:nowrap;overflow:hidden"><span class="chip on">Tout</span><span class="chip">Prêtes</span><span class="chip">Rouge</span><span class="chip">Blanc</span></div>
+      <div class="row"><div class="bottle"><i></i></div><div class="grow"><div class="wname sans">Domaine des Tilleuls 2016</div><div class="sub">Saint-Émilion · <span class="x">×3</span></div></div></div>
+      <div class="tabbar"><div class="t on"><svg viewBox="0 0 24 24"><path d="M8 2h8l-1 7a3 3 0 0 1-6 0zM12 12v8M8 22h8"/></svg>Ma cave</div><div class="t"><svg viewBox="0 0 24 24"><path d="M5 3v8a2 2 0 0 0 2 2v8M9 3v6M17 3c-2 0-3 3-3 6s1 4 3 4v8"/></svg>Sommelier</div><div class="fab"><svg viewBox="0 0 24 24" style="stroke:#fff"><path d="M4 8V5a1 1 0 0 1 1-1h3M16 4h3a1 1 0 0 1 1 1v3M20 16v3a1 1 0 0 1-1 1h-3M8 20H5a1 1 0 0 1-1-1v-3"/></svg></div><div class="t"><svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3"/><circle cx="17" cy="9" r="2.5"/><path d="M3 20c0-3 3-5 6-5s6 2 6 5M15 15c3 0 6 1.5 6 4"/></svg>Social</div><div class="t"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg>Profil</div></div>
+    </div>
+    <div class="cap">S40 · Ma cave, vue Liste</div>
+    </div>
+
+    <!-- S42 Plan -->
+    <div>
+    <div class="phone" aria-label="Maquette : Plan de cave">
+      <div class="eyebrow" style="color:var(--gold)">Cave du bas</div>
+      <div class="seg"><span>Liste</span><span class="on">Plan</span></div>
+      <div class="plan">
+        <span></span><span class="h">C1</span><span class="h">C2</span><span class="h" style="color:var(--ink)">C3</span><span class="h">C4</span>
+        <span>R1</span>
+        <div class="cell">Tilleuls<small>2016</small></div><div class="cell">Tilleuls<small>2016</small></div><div class="cell hit">Tilleuls<small>2016</small></div><div class="cell" style="--c:#3f1b1d">Côte Brûlée<small>2018</small></div>
+        <span>R2</span>
+        <div class="cell" style="--c:var(--c-blanc)">Les Sablons<small>2022</small></div><div class="cell" style="--c:var(--c-blanc)">Les Sablons<small>2022</small></div><div class="cell" style="--c:var(--c-bulle)">Crémant<small>2021</small></div><div class="cell" style="--c:var(--c-liq)">Moelleux<small>2015</small></div>
+        <span>R3</span>
+        <div class="cell" style="--c:var(--c-porto)">Rivesaltes<small>2009</small></div><div class="cell">Grès Rouges<small>2019</small></div><div class="cell empty"></div><div class="cell empty"></div>
+        <span>R4</span>
+        <div class="cell empty"></div><div class="cell empty"></div><div class="cell empty"></div><div class="cell empty"></div>
+      </div>
+      <div class="card" style="margin-top:14px;display:flex;gap:10px;align-items:center">
+        <div class="bottle"><i></i></div>
+        <div class="grow" style="flex:1;min-width:0"><div class="wname sans">Domaine des Tilleuls 2016</div><div class="sub" style="font-family:var(--mono)">R1 · C3</div></div>
+      </div>
+      <div class="legend" style="margin-top:12px;flex-wrap:wrap"><span style="--d:var(--c-rouge)">Rouge</span><span style="--d:var(--c-blanc)">Blanc</span><span style="--d:var(--c-bulle)">Bulles</span><span style="--d:var(--c-liq)">Liquoreux</span></div>
+      <div class="tabbar"><div class="t on"><svg viewBox="0 0 24 24"><path d="M8 2h8l-1 7a3 3 0 0 1-6 0zM12 12v8M8 22h8"/></svg>Ma cave</div><div class="t"><svg viewBox="0 0 24 24"><path d="M5 3v8a2 2 0 0 0 2 2v8M9 3v6M17 3c-2 0-3 3-3 6s1 4 3 4v8"/></svg>Sommelier</div><div class="fab"><svg viewBox="0 0 24 24" style="stroke:#fff"><path d="M4 8V5a1 1 0 0 1 1-1h3M16 4h3a1 1 0 0 1 1 1v3M20 16v3a1 1 0 0 1-1 1h-3M8 20H5a1 1 0 0 1-1-1v-3"/></svg></div><div class="t"><svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3"/><circle cx="17" cy="9" r="2.5"/><path d="M3 20c0-3 3-5 6-5s6 2 6 5M15 15c3 0 6 1.5 6 4"/></svg>Social</div><div class="t"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg>Profil</div></div>
+    </div>
+    <div class="cap">S42 · Plan de cave</div>
+    </div>
+
+    <!-- S47 Fiche vin -->
+    <div>
+    <div class="phone" aria-label="Maquette : Fiche vin">
+      <div class="topbar"><span style="color:var(--mute)">‹</span><span class="wname">Les Grès Rouges</span><span class="yr">2019</span></div>
+      <div class="eyebrow">Fenêtre de garde</div>
+      <div class="timeline"><span class="win" style="left:38%;width:36%"></span><span class="now" style="left:46%"></span></div>
+      <div class="tl-l"><span>2019</span><span class="g">apogée 2024–2031</span><span>2036</span></div>
+      <div style="margin:14px 0"><span class="loc">◎ Cave du bas · R3 · C2 ›</span></div>
+      <div class="eyebrow">Profil gustatif</div>
+      <div class="slider"><div class="lb"><span>Léger</span><b>Puissant</b></div><div class="tr"><i style="left:72%"></i></div></div>
+      <div class="slider"><div class="lb"><span>Souple</span><b>Tannique</b></div><div class="tr"><i style="left:64%"></i></div></div>
+      <div class="slider"><div class="lb"><b>Sec</b><span>Moelleux</span></div><div class="tr"><i style="left:2%"></i></div></div>
+      <div class="chips" style="margin:12px 0"><span class="chip aroma" style="--d:#4a1259">Cassis</span><span class="chip aroma" style="--d:#8b4513">Épices</span><span class="chip aroma" style="--d:#6b3a2a">Cuir</span></div>
+      <div class="cep"><span>Syrah</span><span class="bar"><i style="width:70%"></i></span><span class="pc">70%</span></div>
+      <div class="cep"><span>Grenache</span><span class="bar"><i style="width:30%"></i></span><span class="pc">30%</span></div>
+      <div class="service" style="margin-top:12px"><div><b>16–18°</b><span>TEMPÉRATURE</span></div><div><b>1–2h</b><span>CARAFAGE</span></div><div><b>→ 2031</b><span>GARDE</span></div></div>
+      <div class="bottombar"><span class="btn ghost">Actions</span><span class="btn red">Déguster</span></div>
+    </div>
+    <div class="cap">S47 · Fiche vin</div>
+    </div>
+
+    <!-- S50 Sommelier -->
+    <div>
+    <div class="phone" aria-label="Maquette : Le sommelier" style="background:linear-gradient(180deg,#2c2023 0,var(--bg) 120px)">
+      <div class="wname" style="font-size:24px">Le sommelier</div>
+      <div class="input" style="margin:14px 0">Côte de bœuf, pommes grenaille</div>
+      <div class="card" style="background:var(--deep)">
+        <div class="eyebrow" style="font-size:10px">Le plat</div>
+        <div class="chips" style="margin:8px 0 12px"><span class="chip">Grillé</span><span class="chip">Gras</span></div>
+        <div class="eyebrow" style="font-size:10px;color:var(--gold)">Les Grès Rouges</div>
+        <div class="chips" style="margin:8px 0 10px"><span class="chip" style="border-color:var(--gold-lo);color:var(--gold-ink);background:#3b2a2f">Tanins fermes</span><span class="chip" style="border-color:var(--gold-lo);color:var(--gold-ink);background:#3b2a2f">Fruits noirs</span></div>
+        <div class="it">La viande grillée appelle des tanins qui tiennent le gras.</div>
+      </div>
+      <div class="card" style="margin-top:12px">
+        <div style="display:flex;gap:12px">
+          <div class="score">82</div>
+          <div style="min-width:0">
+            <div class="eyebrow" style="font-size:10px;color:var(--gold)">Notre choix · Très bon accord</div>
+            <div class="wname" style="margin-top:6px">Les Grès Rouges 2019</div>
+            <div class="sub">Domaine du Coteau · Rhône</div>
+            <div style="display:flex;gap:8px;align-items:center;margin-top:8px;flex-wrap:wrap"><span style="font-size:12px;font-weight:600">À son apogée</span><span class="loc dash" style="padding:6px 10px;font-size:11px">◎ À ranger ›</span></div>
+          </div>
+        </div>
+        <div class="btn red" style="margin-top:14px">Voir cette bouteille</div>
+      </div>
+      <div style="text-align:center;margin-top:14px;font-weight:600;color:var(--ink2)">Changer de plat</div>
+      <div class="tabbar"><div class="t"><svg viewBox="0 0 24 24"><path d="M8 2h8l-1 7a3 3 0 0 1-6 0zM12 12v8M8 22h8"/></svg>Ma cave</div><div class="t on"><svg viewBox="0 0 24 24"><path d="M5 3v8a2 2 0 0 0 2 2v8M9 3v6M17 3c-2 0-3 3-3 6s1 4 3 4v8"/></svg>Sommelier</div><div class="fab"><svg viewBox="0 0 24 24" style="stroke:#fff"><path d="M4 8V5a1 1 0 0 1 1-1h3M16 4h3a1 1 0 0 1 1 1v3M20 16v3a1 1 0 0 1-1 1h-3M8 20H5a1 1 0 0 1-1-1v-3"/></svg></div><div class="t"><svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3"/><circle cx="17" cy="9" r="2.5"/><path d="M3 20c0-3 3-5 6-5s6 2 6 5M15 15c3 0 6 1.5 6 4"/></svg>Social</div><div class="t"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg>Profil</div></div>
+    </div>
+    <div class="cap">S50 · Le sommelier</div>
+    </div>
+
+  </div>
+</section>
+
+<section>
+  <div class="head">
+    <div class="eyebrow">Boucle principale</div>
+    <h2>Photographier, ranger, ouvrir au bon moment</h2>
+    <p class="lede">La photo de l'étiquette donne le vin et sa fenêtre de garde. On touche la case du casier où on pose la bouteille. Le soir, l'app dit laquelle ouvrir et où elle attend. Après la dernière gorgée, une note, et la case se libère.</p>
+  </div>
+  <div class="flows">
+    <div class="card flow"><span class="clicks">F40 · 4 gestes</span><h3>Entrer et ranger une bouteille</h3><div class="steps"><span>S40</span><em>→</em><span>S44 photo</span><em>→</em><span>S45 vérifier</span><em>→</em><span>S46 case</span><em>→</em><span>S47</span></div><p>Vin inconnu, couleur absente de l'étiquette, pas de réseau, case déjà prise.</p></div>
+    <div class="card flow"><span class="clicks">F41 · rafale</span><h3>Ranger un carton entier</h3><div class="steps"><span>S44 photo × 6</span><em>→</em><span>« 6 vins lus »</span><em>→</em><span>S45</span><em>→</em><span>S46</span></div><p>Les photos restent si on quitte l'écran ; le reste va dans « À ranger ».</p></div>
+    <div class="card flow"><span class="clicks">F42 · 3 gestes</span><h3>Retrouver une bouteille</h3><div class="steps"><span>S40</span><em>→</em><span>ligne</span><em>→</em><span>S47</span><em>→</em><span>R2 · C5</span><em>→</em><span>S42</span></div><p>La case est mise en avant dans le plan.</p></div>
+    <div class="card flow"><span class="clicks">F43 · 4 gestes</span><h3>Ouvrir le vin du soir</h3><div class="steps"><span>À boire ce soir</span><em>→</em><span>S47</span><em>→</em><span>Déguster</span><em>→</em><span>S48 note</span></div><p>Stock moins un, case libérée.</p></div>
+    <div class="card flow"><span class="clicks">F44</span><h3>Accord mets-vins</h3><div class="steps"><span>S50 le plat</span><em>→</em><span>notre choix</span><em>→</em><span>S47</span></div><p>Seulement les vins de la cave ; si rien ne va, l'app le dit.</p></div>
+    <div class="card flow"><span class="clicks">F45 · F46 · F47</span><h3>Alertes, meubles, import</h3><div class="steps"><span>notification</span><em>→</em><span>S47</span></div><div class="steps" style="margin-top:6px"><span>Mes meubles</span><em>→</em><span>S43</span><em>→</em><span>S42</span></div><div class="steps" style="margin-top:6px"><span>Excel</span><em>→</em><span>S54</span><em>→</em><span>Ajouter N bouteilles</span></div></div>
+  </div>
+</section>
+
+<section>
+  <div class="head">
+    <div class="eyebrow">Visuel relevé</div>
+    <h2>Une seule ambiance, sombre comme une cave</h2>
+    <p class="lede">Valeurs lues dans la feuille de style publique du site et vérifiées sur les captures. Pas de thème clair dans l'original.</p>
+  </div>
+  <div class="swatches">
+    <div class="sw"><i style="--c:var(--bg)"></i><div>Fond<br><code>#1e1518</code></div></div>
+    <div class="sw"><i style="--c:var(--card)"></i><div>Carte<br><code>#251b1e</code></div></div>
+    <div class="sw"><i style="--c:var(--bg3)"></i><div>Fond 3, pistes<br><code>#3d2e31</code></div></div>
+    <div class="sw"><i style="--c:var(--line)"></i><div>Bordure<br><code>#3a2c2f</code></div></div>
+    <div class="sw"><i style="--c:var(--ink)"></i><div>Texte crème<br><code>#f2e8dc</code></div></div>
+    <div class="sw"><i style="--c:var(--mute)"></i><div>Texte discret<br><code>#a08e7e</code></div></div>
+    <div class="sw"><i style="--c:var(--gold)"></i><div>Or<br><code>#c4a882</code></div></div>
+    <div class="sw"><i style="--c:var(--red)"></i><div>Action<br><code>#e5484d</code></div></div>
+    <div class="sw"><i style="--c:var(--burgundy)"></i><div>Bordeaux<br><code>#4a1c24</code></div></div>
+    <div class="sw"><i style="--c:var(--s-pret)"></i><div>Prêt<br><code>#e8d9b8</code></div></div>
+    <div class="sw"><i style="--c:var(--s-apo)"></i><div>Apogée<br><code>#e8b54a</code></div></div>
+    <div class="sw"><i style="--c:var(--s-vite)"></i><div>À boire vite<br><code>#e58747</code></div></div>
+  </div>
+  <div class="type" style="margin-top:12px">
+    <div class="card"><div class="eyebrow">Noms de vin</div><div class="spec" style="font-family:var(--serif)">Domaine des Tilleuls</div><div class="sub">Spectral, et son italique pour les explications du sommelier.</div></div>
+    <div class="card"><div class="eyebrow">Interface</div><div class="spec" style="font-weight:700">47 bouteilles</div><div class="sub">Hanken Grotesk pour tout le reste. Intitulés en capitales espacées, couleur or.</div></div>
+    <div class="card"><div class="eyebrow">Repères</div><div class="spec" style="font-family:var(--mono);color:var(--gold-ink)">R2 · C5 · 2019</div><div class="sub">JetBrains Mono pour les emplacements, millésimes et bornes.</div></div>
+  </div>
+  <p class="note" style="margin-top:14px">Les trois polices sont libres (licence OFL) et peuvent être reprises telles quelles. Le nom, le logo, l'icône, les photos de bouteilles et les textes de l'original restent à eux : votre version aura les siens.</p>
+</section>
+
+<section>
+  <div class="head">
+    <div class="eyebrow">Inventaire</div>
+    <h2>Les 18 écrans</h2>
+  </div>
+  <div class="tbl"><table>
+    <thead><tr><th>ID</th><th>Écran</th><th>Rôle</th><th>À retenir</th></tr></thead>
+    <tbody>
+      <tr><td>S40</td><td><b>Ma cave, Liste</b></td><td>stock, vin du soir, jauge</td><td>grand chiffre, bascule Liste / Plan, puces de filtre</td></tr>
+      <tr><td>S41</td><td><b>Ancien tableau de bord</b></td><td>résumé, urgences</td><td>« Boire avant 2027 », liseré rouge</td></tr>
+      <tr><td>S42</td><td><b>Plan de cave</b></td><td>le casier en grille</td><td>case colorée par couleur du vin, vides en pointillés</td></tr>
+      <tr><td>S43</td><td><b>Mes meubles</b></td><td>créer ses casiers</td><td>nom, rangées, colonnes</td></tr>
+      <tr><td>S44</td><td><b>Scan</b></td><td>photo d'étiquette</td><td>rafale, hors ligne, galerie</td></tr>
+      <tr><td>S45</td><td><b>Confirmation</b></td><td>vérifier la lecture</td><td>couleur demandée si absente</td></tr>
+      <tr><td>S46</td><td><b>Ranger</b></td><td>toucher une case libre</td><td>la bouteille suivante apparaît</td></tr>
+      <tr><td>S47</td><td><b>Fiche vin</b></td><td>tout sur un vin</td><td>frise d'apogée, profil, cépages, service</td></tr>
+      <tr><td>S48</td><td><b>Déguster</b></td><td>sortir et noter</td><td>note, robe, arômes, avec qui</td></tr>
+      <tr><td>S49</td><td><b>Carnet</b></td><td>notes passées</td><td>liste par date</td></tr>
+      <tr><td>S50</td><td><b>Le sommelier</b></td><td>accord avec sa cave</td><td>score rond, explication en italique</td></tr>
+      <tr><td>S51</td><td><b>Notifications</b></td><td>alertes d'apogée</td><td>rythme réglable</td></tr>
+      <tr><td>S52</td><td><b>Social</b></td><td>cave d'un ami</td><td>hors périmètre</td></tr>
+      <tr><td>S53</td><td><b>Profil</b></td><td>réglages</td><td>alertes, import, export</td></tr>
+      <tr><td>S54</td><td><b>Importer une cave</b></td><td>Excel, CSV, PDF</td><td>sur ordinateur, annulable 7 jours</td></tr>
+      <tr><td>S55</td><td><b>Guide des vins</b></td><td>régions, cépages</td><td>hors périmètre</td></tr>
+      <tr><td>S56</td><td><b>Abonnement</b></td><td>au 31ᵉ vin</td><td>hors périmètre</td></tr>
+      <tr><td>S57</td><td><b>Essayer sans compte</b></td><td>une photo, un avis</td><td>hors périmètre</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<section>
+  <div class="head">
+    <div class="eyebrow">Données</div>
+    <h2>Ce que l'app garde en mémoire</h2>
+  </div>
+  <div class="tbl"><table>
+    <thead><tr><th>Type</th><th>Champs</th><th>Confiance</th></tr></thead>
+    <tbody>
+      <tr><td>Meuble</td><td>nom, rangées, colonnes</td><td>haute</td></tr>
+      <tr><td>Vin</td><td>domaine, cuvée, appellation, région, couleur, millésime, cépages en %, profil (4 axes), arômes, service, fenêtre de garde, photo d'étiquette</td><td>haute</td></tr>
+      <tr><td>Bouteille</td><td>vin, meuble, rangée, colonne (vide = à ranger), prix payé, entrée, sortie, statut</td><td>haute</td></tr>
+      <tr><td>Dégustation</td><td>vin, date, note, robe, arômes, commentaire, avec qui, photos</td><td>moyenne</td></tr>
+      <tr><td>État de garde</td><td>calculé : jeune, prêt, apogée, à boire vite, passé</td><td>règles devinées</td></tr>
+      <tr><td>Alerte</td><td>rythme, email</td><td>moyenne</td></tr>
+      <tr><td>Import</td><td>date, source, nombre, annulable jusqu'au</td><td>haute</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<section>
+  <div class="head">
+    <div class="eyebrow">Le tri</div>
+    <h2>Ce qu'on refait, ce qu'on laisse</h2>
+  </div>
+  <div class="split">
+    <div class="card"><span class="pill">À faire d'abord · 14</span><h3>Le cœur</h3><ul><li>Saisie d'une bouteille, quantité, prix</li><li>Fenêtre de garde et jauge Prêt / Apogée / À boire vite</li><li>Vin du soir, liste des urgences</li><li>Meubles, plan coloré, ranger d'un toucher, bac « À ranger »</li><li>Fiche vin, déguster et libérer la case</li><li>Le visuel sombre relevé ici</li></ul></div>
+    <div class="card"><span class="pill">Ensuite · 19</span><h3>Le confort</h3><ul><li>Lecture d'étiquette par IA, scan en rafale</li><li>Notes et carnet de dégustation, photos</li><li>Alertes d'apogée, filtres, valeur de la cave</li><li>Synchronisation par le NAS, export</li><li>Sommelier, import Excel, vos cuvées du domaine</li></ul></div>
+    <div class="card"><span class="pill">On laisse · 5</span><h3>Ce qui leur appartient</h3><ul><li>Le catalogue de 190 000 vins</li><li>Le guide des vins</li><li>Les amis et caves partagées</li><li>L'abonnement</li><li>Le nom, le logo, les photos et les textes</li></ul></div>
+  </div>
+</section>
+
+<section>
+  <div class="head">
+    <div class="eyebrow">Taille</div>
+    <h2>Quelques semaines, comme un onglet « Cave »</h2>
+  </div>
+  <div class="size">
+    <div class="letter">M</div>
+    <p class="lede" style="flex:1;min-width:240px">Le stockage, la synchronisation avec le NAS et les pièces jointes existent déjà dans Registre Vigne. Il reste trois morceaux difficiles.</p>
+  </div>
+  <div class="split" style="margin-top:16px">
+    <div class="card"><span class="clicks">1</span><h3>La fenêtre de garde</h3><p class="sub" style="font-size:14px">Sans leur base de vins, il faut des règles par couleur, région et millésime, corrigeables bouteille par bouteille.</p></div>
+    <div class="card"><span class="clicks">2</span><h3>La lecture d'étiquette</h3><p class="sub" style="font-size:14px">Un modèle d'IA appelé depuis le NAS, avec une clé API. Sans réseau, saisie à la main.</p></div>
+    <div class="card"><span class="clicks">3</span><h3>Le plan tactile</h3><p class="sub" style="font-size:14px">Une grille de cases, toucher pour ranger, une case mise en avant depuis la fiche.</p></div>
+  </div>
+</section>
+
+<footer>
+  Sources lues : <a href="https://tire-bouchon.app/">site officiel</a>, <a href="https://tire-bouchon.app/logiciel-gestion-cave">gestion de cave</a>, <a href="https://tire-bouchon.app/foire-aux-vins">foire aux vins</a>, <a href="https://tire-bouchon.app/blog/cave/importer-cave-vin-excel">import Excel</a>, <a href="https://apps.apple.com/fr/app/id6795821948">fiche App Store</a>, <a href="https://lespepitestech.com/startup-de-la-french-tech/tire-bouchon">fiche French Tech</a>. Aucun compte utilisé, aucun code de l'app lu. Détail complet dans <code>replica/recon-tire-bouchon.md</code> et <code>replica/features-tire-bouchon.csv</code>.
+</footer>
+
+</div>
