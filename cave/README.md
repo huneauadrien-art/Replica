@@ -7,6 +7,15 @@ Indépendante de Registre Vigne : ses propres données, son propre service sur l
 
 ## Installer sur le NAS (UGREEN, UGOS Pro)
 
+**Le plus simple : le dossier tout prêt.** `bash nas/fabriquer-dossier.sh` (dans `cave/`)
+fabrique `build-nas/ma-cave.zip` : l'appli déjà construite + `docker-compose.yml` +
+`LISEZMOI.txt`. On l'extrait, on met le code dans `docker-compose.yml`, on copie le dossier
+sur le NAS et on crée le projet Docker dessus. Il utilise l'image officielle `node`, rien
+à télécharger depuis GitHub. Mise à jour : remplacer le sous-dossier `app`.
+
+**Autre possibilité : l'image GitHub** (après fusion sur la branche de travail) :
+
+
 1. **Docker** › **Projet** › **Créer**. Nom : `ma-cave`. Emplacement : par exemple
    `docker/ma-cave`.
 2. Collez le contenu de [`nas/docker-compose.yml`](nas/docker-compose.yml) et remplacez

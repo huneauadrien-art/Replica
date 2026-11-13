@@ -29,6 +29,8 @@ sait lancer des commandes.
   avec Registre Vigne : ses données, son image `ghcr.io/huneauadrien-art/ma-cave` (NAS port
   8083, `cave/nas/docker-compose.yml`), son apk (release `cave-android-latest`). Mêmes
   commandes, à lancer dans `cave/`. Garder les deux apps indépendantes (pas d'import croisé).
+  L'utilisateur installe Ma Cave avec le **dossier tout prêt** : `bash nas/fabriquer-dossier.sh`
+  → `cave/build-nas/ma-cave.zip` (image `node` + appli déjà construite), à lui envoyer.
 
 ## Commandes (dans `app/`)
 
