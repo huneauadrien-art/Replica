@@ -10,9 +10,10 @@ import {
   rentreePossible,
   stockActuel,
 } from '../registre';
-import type { Donnees, Traitement } from '../types';
+import { DONNEES_VIDES, type Donnees, type Traitement } from '../types';
 
 const donnees = (): Donnees => ({
+  ...DONNEES_VIDES,
   version: 1,
   factures: [],
   parcelles: [

@@ -1,0 +1,197 @@
+{
+  "_about": "Jetons de la cave à vin, relevés sur Tire-Bouchon (feuille de style publique + captures). Thème sombre seul. Code : app/src/ui/cave/theme.ts. Vérifier : python3 .claude/skills/replica-design/contrast.py replica/design/tokens-cave.json",
+  "color": {
+    "bg": "#1e1518",
+    "bg-deep": "#1b1316",
+    "surface": "#251b1e",
+    "surface-raised": "#2a1b1f",
+    "surface-2": "#2c2023",
+    "track": "#3d2e31",
+    "border": "#3a2c2f",
+    "border-input": "#8a767a",
+    "text": "#f2e8dc",
+    "text-2": "#d4c4b4",
+    "text-muted": "#a08e7e",
+    "gold": "#c4a882",
+    "gold-hi": "#d4b896",
+    "gold-text": "#e8d4b8",
+    "accent": "#e5484d",
+    "accent-button": "#d13b41",
+    "on-accent": "#ffffff",
+    "on-cream": "#1e1518",
+    "danger-text": "#ff6568",
+    "state-pret": "#e8d9b8",
+    "state-apogee": "#e8b54a",
+    "state-vite": "#e58747",
+    "wine-rouge": "#4a1c24",
+    "wine-blanc": "#6b6258",
+    "wine-rose": "#874b50",
+    "wine-effervescent": "#66643f",
+    "wine-liquoreux": "#72592a",
+    "wine-fortifie": "#4e2919"
+  },
+  "pairs": [
+    [
+      "text",
+      "bg"
+    ],
+    [
+      "text",
+      "surface"
+    ],
+    [
+      "text",
+      "surface-2"
+    ],
+    [
+      "text-2",
+      "surface"
+    ],
+    [
+      "text-muted",
+      "bg"
+    ],
+    [
+      "text-muted",
+      "surface"
+    ],
+    [
+      "gold",
+      "bg"
+    ],
+    [
+      "gold",
+      "surface"
+    ],
+    [
+      "gold-text",
+      "surface"
+    ],
+    [
+      "on-cream",
+      "text"
+    ],
+    [
+      "on-cream",
+      "gold"
+    ],
+    [
+      "danger-text",
+      "surface"
+    ],
+    [
+      "accent",
+      "bg",
+      "ui"
+    ],
+    [
+      "border-input",
+      "bg",
+      "ui"
+    ],
+    [
+      "text",
+      "wine-rouge"
+    ],
+    [
+      "text",
+      "wine-blanc"
+    ],
+    [
+      "text",
+      "wine-rose"
+    ],
+    [
+      "text",
+      "wine-effervescent"
+    ],
+    [
+      "text",
+      "wine-liquoreux"
+    ],
+    [
+      "text",
+      "wine-fortifie"
+    ],
+    [
+      "on-accent",
+      "accent-button"
+    ],
+    [
+      "on-accent",
+      "accent",
+      "ui"
+    ]
+  ],
+  "font": {
+    "serif": "Spectral (OFL) : noms de vin, titres, explications en italique",
+    "sans": "Hanken Grotesk (OFL) : interface",
+    "mono": "JetBrains Mono (OFL) : emplacements, millésimes, bornes"
+  },
+  "type": {
+    "eyebrow": {
+      "size": 12,
+      "line": 16,
+      "weight": 600,
+      "tracking": 3,
+      "case": "upper"
+    },
+    "sm": {
+      "size": 13,
+      "line": 18,
+      "weight": 400
+    },
+    "base": {
+      "size": 16,
+      "line": 22,
+      "weight": 400
+    },
+    "row-title": {
+      "size": 16,
+      "line": 21,
+      "weight": 600
+    },
+    "wine-title": {
+      "size": 22,
+      "line": 28,
+      "weight": 400,
+      "family": "serif"
+    },
+    "screen-title": {
+      "size": 28,
+      "line": 34,
+      "weight": 400,
+      "family": "serif"
+    },
+    "big-number": {
+      "size": 48,
+      "line": 52,
+      "weight": 700
+    }
+  },
+  "space": [
+    0,
+    4,
+    8,
+    12,
+    16,
+    20,
+    24,
+    32,
+    48
+  ],
+  "radius": {
+    "cell": 10,
+    "chip": 999,
+    "button": 16,
+    "card": 20,
+    "tabbar": 999
+  },
+  "shadow": {
+    "accent-glow": "0 8px 20px -8px #e5484d"
+  },
+  "motion": {
+    "fast": "120ms",
+    "base": "200ms"
+  }
+}

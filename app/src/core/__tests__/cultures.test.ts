@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { cultureDe, cultureDepuisCode, largeurTraitee } from '../cultures';
 import { lignesRegistre } from '../registre';
-import type { Donnees } from '../types';
+import { DONNEES_VIDES, type Donnees } from '../types';
 
 describe('cultures', () => {
   it('reconnaît les codes PAC courants', () => {
@@ -29,6 +29,7 @@ describe('cultures', () => {
 
   it('met la vraie culture dans le registre', () => {
     const d: Donnees = {
+      ...DONNEES_VIDES,
       version: 1,
   factures: [],
       parcelles: [{ id: 'b', nom: 'Le Champ', surfaceHa: 3, codeCulture: 'BTH', contour: [] }],

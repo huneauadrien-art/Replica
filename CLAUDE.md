@@ -12,18 +12,21 @@ sait lancer des commandes.
   - `src/core/` : logique sans dépendance au téléphone, testée avec vitest
     (`registre.ts`, `factures.ts`, `facturx.ts` Factur-X/CII, `facturePdf.ts` +
     `pdfTexte.ts` + `pdfFlux.ts` lecture des PDF classiques, `sync.ts`,
-    `shapefile.ts` + `importParcelles.ts` import PAC Telepac, `cultures.ts`).
+    `shapefile.ts` + `importParcelles.ts` import PAC Telepac, `cultures.ts`, `cave.ts` cave à vin
+    perso : fenêtre de garde, plan des casiers).
   - `src/data/` : stockage local (AsyncStorage, pièces jointes fichiers/IndexedDB),
     synchronisation avec le NAS (`store.tsx`), appels serveur, fichiers.
-  - `src/app/` : écrans (onglets Accueil, Parcelles, Traitements, Stock, Registre ;
+  - `src/app/` : écrans (onglets Accueil, Parcelles, Traitements, Stock, Registre, Cave ;
+    `cave/` écrans de la cave, thème sombre façon Tire-Bouchon dans `src/ui/cave/` ;
     `factures/`, `reglages.tsx` = écran Serveur NAS).
   - `serveur/index.ts` : serveur du NAS (Node sans dépendance) : `/api/etat`,
     `/api/sync`, `/api/pieces/:id`, sert aussi la version web.
 - `Dockerfile` + `nas/` : image et docker-compose pour le NAS UGREEN DXP2800 (UGOS).
 - `.github/workflows/` : apk Android (release `android-latest`), web (GitHub Pages),
   image `ghcr.io/huneauadrien-art/registre-vigne` (publique).
-- `replica/` : cartes de reconnaissance (Process2Wine, Smag Farmer, Kolecto) et
-  tableaux de fonctionnalités.
+- `replica/` : cartes de reconnaissance (Process2Wine, Smag Farmer, Kolecto, Tire-Bouchon),
+  tableaux de fonctionnalités, architecture, jetons de design, plans de test.
+- `app/e2e/cave.e2e.mjs` : test de bout en bout de la cave (voir l'en-tête pour le lancer).
 
 ## Commandes (dans `app/`)
 
@@ -50,6 +53,9 @@ Playwright (`/opt/pw-browsers`) contre `dist/` servi par le serveur lancé en lo
 - Branche de travail : `claude/replica-skill-install-u8a3g6` (pas de PR sans demande).
 
 ## Reste à faire (au choix de l'utilisateur)
+
+- Cave à vin : lecture d'étiquette par IA, scan en rafale, alertes d'apogée, sommelier,
+  import Excel (voir `replica/features-tire-bouchon.csv`).
 
 - GPS du pulvérisateur : tracer la bande traitée sur la parcelle et compter les ha
   (marque/modèle du boîtier de commande encore inconnus ; prévoir un bouton

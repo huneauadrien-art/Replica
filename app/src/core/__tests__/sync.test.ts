@@ -84,3 +84,11 @@ describe('deux téléphones', () => {
     expect(r.parcelles.find((p) => p.id === 'a')?.nom).toBe('local');
   });
 });
+
+describe('téléphone vide', () => {
+  it('ne compte pas pour vide un téléphone qui n’a que sa cave', async () => {
+    const { estVide } = await import('../sync');
+    expect(estVide(DONNEES_VIDES)).toBe(true);
+    expect(estVide({ ...DONNEES_VIDES, bouteilles: [{ id: 'b', vinId: 'v', entree: '2026-11-13', statut: 'cave' }] })).toBe(false);
+  });
+});
